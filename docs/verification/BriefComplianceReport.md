@@ -70,3 +70,13 @@ a literal reading.
 
 Process-wise, the plan and decision log are unusually thorough and are the strongest part of the
 submission.
+
+## Update: Phase 16 (end-user self-service)
+
+Added after this report was first written: account registration/login and user-scoped alert
+rules/channels/subscriptions (ADR-0010), reachable at `/register`, `/login`, `/my` in the
+frontend, on top of the existing Admin API/panel. The brief never asks for individual user
+accounts, only "an admin view," so this is an addition beyond the brief, not something that
+closes or reopens a gap. It doesn't change either conclusion above: product requirements remain
+fully met, and the same two pre-existing minor gaps (`isEnabled` not editable after creation,
+`EventCategory` as a closed enum) are still open, unchanged by this phase.
