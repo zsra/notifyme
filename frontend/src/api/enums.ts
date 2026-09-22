@@ -30,3 +30,9 @@ export const NOTIFICATION_STATUS_LABELS: Record<number, string> = {
 export function labelFor(map: Record<number, string>, value: number): string {
   return map[value] ?? `Unknown (${value})`;
 }
+
+/** `<select>` options (as `{ value, label }`, value as a string for controlled inputs) for a label map. */
+export function optionsFor(map: Record<number, string>): Array<{ value: string; label: string }> {
+  return Object.entries(map).map(([value, label]) => ({ value, label }));
+}
+

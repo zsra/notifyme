@@ -61,6 +61,7 @@ status, and [`ai/decisions/adr/`](ai/decisions/adr/) for the key decisions made 
 The original brief is preserved at [`task-04-feature-design-and-build.docx`](task-04-feature-design-and-build.docx).
 
 The frontend (a React/TypeScript admin panel, kept deliberately simple and technical rather than
-visual) has its foundation in place (Phase 13: scaffolding, typed API client, auth, routing
-shell); the actual CRUD/read screens (Phase 14) and frontend testing/CI (Phase 15) are still to
-come. See ADR-0009 and Phases 13-15 in [`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md).
+visual) is functional: Phase 13 (foundation: scaffolding, typed API client, auth, routing shell)
+and Phase 14 (Alert Rules/Channels/Subscriptions/Notifications screens, manual event trigger) are
+both done; frontend testing/CI/docs (Phase 15) is still to come. See ADR-0009 and Phases 13-15 in
+[`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md).

@@ -23,7 +23,7 @@ it is now scoped as Phases 13-15 (see ADR-0009).
 - [x] [Phase 11 - Testing hardening](phase-11-testing-hardening.md)
 - [ ] [Phase 12 - CI & repo polish](phase-12-ci-and-repo-polish.md)
 - [x] [Phase 13 - Frontend foundation & API integration](phase-13-frontend-foundation.md)
-- [ ] [Phase 14 - Frontend admin screens](phase-14-frontend-admin-screens.md)
+- [x] [Phase 14 - Frontend admin screens](phase-14-frontend-admin-screens.md)
 - [ ] [Phase 15 - Frontend testing, CI, and docs](phase-15-frontend-testing-and-docs.md)
 
 ## Sequencing notes
@@ -70,5 +70,10 @@ CRUD/read screens, and testing/CI/docs, respectively. Phase 13 is done: `fronten
 and end-to-end verified against the real API (API key entry, typed `openapi-fetch` client
 generated from the Admin API's own OpenAPI document, routing shell, `/health` status page); this
 also surfaced and fixed a real gap in Phase 08's OpenAPI output (endpoints had no typed response
-schemas) via `.Produces<T>()` metadata, and required a new CORS policy on `NotifyMe.Api`. Phases
-14 and 15 (the actual CRUD screens; frontend testing/CI/docs) are not started yet.
+schemas) via `.Produces<T>()` metadata, and required a new CORS policy on `NotifyMe.Api`. Phase 14
+is done too: Alert Rules/Channels/Subscriptions/Notifications screens with create/edit/delete
+where the API supports it, a manual trigger-simulated-event action, and TanStack Query cache
+invalidation - verified end-to-end through the actual UI, including cleaning the test data back
+out. This also surfaced a real Admin API gap: neither `UpdateAlertRuleRequest` nor
+`UpdateChannelConfigRequest` support changing `isEnabled` after creation, so the edit forms only
+expose that field at creation time. Phase 15 (frontend testing/CI/docs) is not started yet.
