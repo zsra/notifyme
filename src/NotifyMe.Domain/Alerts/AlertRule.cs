@@ -38,6 +38,33 @@ public sealed class AlertRule : Entity
         DateTimeOffset createdAt,
         bool isEnabled = true)
     {
+        EnsureValid(name, category);
+        ArgumentNullException.ThrowIfNull(criteria);
+
+        return new AlertRule(id, name.Trim(), category, criteria, isEnabled, createdAt);
+    }
+
+    public void Enable() => IsEnabled = true;
+
+    public void Disable() => IsEnabled = false;
+
+    /// <summary>
+    /// Replaces the editable details of this rule (name, category, match criteria). Added in
+    /// Phase 04 because the Application layer's `UpdateAlertRule` use case needs a way to edit
+    /// an existing rule without discarding its identity/`CreatedAt`/`IsEnabled` state.
+    /// </summary>
+    public void UpdateDetails(string name, EventCategory category, MatchCriteria criteria)
+    {
+        EnsureValid(name, category);
+        ArgumentNullException.ThrowIfNull(criteria);
+
+        Name = name.Trim();
+        Category = category;
+        Criteria = criteria;
+    }
+
+    private static void EnsureValid(string name, EventCategory category)
+    {
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new ArgumentException("Alert rule name is required.", nameof(name));
@@ -47,15 +74,7 @@ public sealed class AlertRule : Entity
         {
             throw new ArgumentOutOfRangeException(nameof(category), category, "Unknown event category.");
         }
-
-        ArgumentNullException.ThrowIfNull(criteria);
-
-        return new AlertRule(id, name.Trim(), category, criteria, isEnabled, createdAt);
     }
-
-    public void Enable() => IsEnabled = true;
-
-    public void Disable() => IsEnabled = false;
 
     /// <summary>
     /// Whether this rule (if enabled) should fire for the given event. Disabled rules never

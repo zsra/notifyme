@@ -88,4 +88,40 @@ public class AlertRuleTests
 
         Assert.True(rule.IsEnabled);
     }
+
+    [Fact]
+    public void UpdateDetails_WithValidData_ReplacesNameCategoryAndCriteria()
+    {
+        var rule = AlertRule.Create(
+            Guid.NewGuid(), "Original", EventCategory.BreakingNews, SeverityOnlyCriteria(Severity.Medium), DateTimeOffset.UtcNow);
+        var newCriteria = SeverityOnlyCriteria(Severity.High);
+
+        rule.UpdateDetails("Updated", EventCategory.NaturalDisaster, newCriteria);
+
+        Assert.Equal("Updated", rule.Name);
+        Assert.Equal(EventCategory.NaturalDisaster, rule.Category);
+        Assert.Same(newCriteria, rule.Criteria);
+    }
+
+    [Fact]
+    public void UpdateDetails_WithBlankName_Throws()
+    {
+        var rule = AlertRule.Create(
+            Guid.NewGuid(), "Original", EventCategory.BreakingNews, SeverityOnlyCriteria(Severity.Medium), DateTimeOffset.UtcNow);
+
+        var act = () => rule.UpdateDetails("   ", EventCategory.BreakingNews, SeverityOnlyCriteria(Severity.Medium));
+
+        Assert.Throws<ArgumentException>(act);
+    }
+
+    [Fact]
+    public void UpdateDetails_WithUndefinedCategory_Throws()
+    {
+        var rule = AlertRule.Create(
+            Guid.NewGuid(), "Original", EventCategory.BreakingNews, SeverityOnlyCriteria(Severity.Medium), DateTimeOffset.UtcNow);
+
+        var act = () => rule.UpdateDetails("Updated", (EventCategory)999, SeverityOnlyCriteria(Severity.Medium));
+
+        Assert.Throws<ArgumentOutOfRangeException>(act);
+    }
 }
