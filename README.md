@@ -7,16 +7,21 @@ AI-directed software design and delivery.
 
 ## Where things live
 
-- [`ai/`](ai/) - process artifacts: the implementation plan, the decision log (ADRs), and the
-  prompt history used while directing AI throughout this project. Read `ai/README.md` first.
+- [`ai/`](ai/) - process artifacts: the implementation plan and the decision log (ADRs). Read
+  `ai/README.md` first.
 - [`docs/`](docs/) - actual design documentation: architecture, data model, API contracts, and
   the runbook for running the system locally.
-- `src/` - the .NET solution (not created yet, see plan status below).
-- `tests/` - automated tests (not created yet, see plan status below).
+- `src/` - the .NET solution (`NotifyMe.slnx`): `NotifyMe.Domain`, `NotifyMe.Application`,
+  `NotifyMe.Infrastructure`, `NotifyMe.Api`, wired per Clean Architecture (see
+  [`docs/architecture/overview.md`](docs/architecture/overview.md)). Scaffolded and building;
+  no business logic yet.
+- `tests/` - automated tests: `NotifyMe.Domain.Tests`, `NotifyMe.Application.Tests`,
+  `NotifyMe.IntegrationTests` (xUnit). Scaffolded; no tests written yet.
 
 ## Status
 
-Currently in the design/planning phase. No application code has been written yet. See
+Solution and project scaffolding is in place (`dotnet build` succeeds across all 7 projects);
+no domain/application logic has been implemented yet. See
 [`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md) for the phased plan and current
 progress, and [`ai/decisions/adr/`](ai/decisions/adr/) for the key decisions made so far.
 

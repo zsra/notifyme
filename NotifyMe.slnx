@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NotifyMe.Api/NotifyMe.Api.csproj" />
+    <Project Path="src/NotifyMe.Application/NotifyMe.Application.csproj" />
+    <Project Path="src/NotifyMe.Domain/NotifyMe.Domain.csproj" />
+    <Project Path="src/NotifyMe.Infrastructure/NotifyMe.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NotifyMe.Application.Tests/NotifyMe.Application.Tests.csproj" />
+    <Project Path="tests/NotifyMe.Domain.Tests/NotifyMe.Domain.Tests.csproj" />
+    <Project Path="tests/NotifyMe.IntegrationTests/NotifyMe.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

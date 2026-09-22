@@ -10,25 +10,34 @@ Phase 01 (design docs must exist so project boundaries and namespaces are chosen
 not guessed).
 
 ## Steps
-- [ ] `dotnet new sln` at repo root (`NotifyMe.sln`).
-- [ ] Create `src/NotifyMe.Domain`, `src/NotifyMe.Application`, `src/NotifyMe.Infrastructure`,
+- [x] `dotnet new sln` at repo root. Note: the .NET 10 SDK generates the new `NotifyMe.slnx`
+      XML solution format by default instead of the legacy `.sln`; kept as-is since it's the
+      SDK's current default and both are supported by tooling.
+- [x] Create `src/NotifyMe.Domain`, `src/NotifyMe.Application`, `src/NotifyMe.Infrastructure`,
       `src/NotifyMe.Api` (class libs / web project as appropriate).
-- [ ] Create `tests/NotifyMe.Domain.Tests`, `tests/NotifyMe.Application.Tests`,
+- [x] Create `tests/NotifyMe.Domain.Tests`, `tests/NotifyMe.Application.Tests`,
       `tests/NotifyMe.IntegrationTests` (xUnit).
-- [ ] Wire project references: `Application` -> `Domain`; `Infrastructure` -> `Application` +
+- [x] Wire project references: `Application` -> `Domain`; `Infrastructure` -> `Application` +
       `Domain`; `Api` -> `Application` + `Infrastructure` + `Domain`. `Domain` references
-      nothing.
-- [ ] Add `Directory.Build.props` for shared settings (nullable enable, treat warnings as
+      nothing. Verified by counting `ProjectReference` entries per csproj.
+- [x] Add `Directory.Build.props` for shared settings (nullable enable, treat warnings as
       errors, analyzers).
-- [ ] Add `docker-compose.yml` with `postgres` and `mailhog` services.
-- [ ] Add base NuGet packages per layer (deferred to actual implementation, not decided in
-      detail here).
+- [x] Add `docker-compose.yml` with `postgres` and `mailhog` services; validated with
+      `docker compose config`.
+- [x] Removed template placeholder files (`Class1.cs`, `UnitTest1.cs`, sample
+      `WeatherForecast` minimal API endpoint) so the scaffold doesn't carry unrelated sample
+      code into Phase 03+.
+- [ ] Base NuGet packages per layer (EF Core/Npgsql, MailKit, FluentValidation, Polly, Serilog,
+      Testcontainers, WireMock.Net, etc.) are deferred to the phases that actually need them
+      (05, 06, 07, 09, 10, 11) rather than added speculatively here.
 
 ## Verification
-- `dotnet build` succeeds with all projects (empty scaffolds compile).
-- `docker compose up` brings up Postgres and MailHog and both are reachable.
-- Project reference graph matches the Clean Architecture dependency rule (verifiable via
-  `dotnet list reference` on each project).
+- `dotnet build` succeeds with all 7 projects (confirmed).
+- `docker compose config` validates the compose file syntax (confirmed; full `docker compose up`
+  smoke test deferred to Phase 05 when persistence code actually needs the database).
+- Project reference graph matches the Clean Architecture dependency rule (confirmed by counting
+  `ProjectReference` entries: Application=1, Infrastructure=2, Api=3, Domain.Tests=1,
+  Application.Tests=2, IntegrationTests=1).
 
 ## Status
-Not started. No code exists yet.
+Done (2026-09-22).

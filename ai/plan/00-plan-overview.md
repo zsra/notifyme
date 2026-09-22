@@ -10,8 +10,8 @@ API contract (end of Phase 8) is stable.
 ## Phases
 
 - [x] [Phase 00 - Repo & AI-friendly scaffolding](phase-00-repo-scaffolding.md)
-- [ ] [Phase 01 - Foundational design docs & ADRs](phase-01-foundational-design-docs.md)
-- [ ] [Phase 02 - Solution & project scaffolding](phase-02-solution-scaffolding.md)
+- [x] [Phase 01 - Foundational design docs & ADRs](phase-01-foundational-design-docs.md)
+- [x] [Phase 02 - Solution & project scaffolding](phase-02-solution-scaffolding.md)
 - [ ] [Phase 03 - Domain layer](phase-03-domain-layer.md)
 - [ ] [Phase 04 - Application layer](phase-04-application-layer.md)
 - [ ] [Phase 05 - Infrastructure: persistence](phase-05-infrastructure-persistence.md)
@@ -31,5 +31,6 @@ they implement) but not on each other, so they can be worked in either order or 
 
 ## Current status
 
-Phase 00 in progress (this scaffolding). No application code exists yet; nothing beyond `ai/` and
-`docs/` content has been created in the repo so far.
+Phases 00, 01, and 02 done. The solution (`NotifyMe.slnx`) and all 7 projects exist, build
+cleanly, and are wired per the Clean Architecture dependency rule. No domain/application code
+exists yet (empty scaffolds) - Phase 03 (Domain layer) is next.

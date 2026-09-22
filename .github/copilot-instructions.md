@@ -16,8 +16,7 @@ making non-trivial changes. Summary of the parts that matter most while coding:
   abstraction (`INotificationChannel`) pluggable; see [`docs/architecture/`](../docs/architecture/).
 - Never commit secrets (webhook URLs, SMTP credentials, API keys) anywhere in the repo, including
   in docs or examples. Use placeholders and `dotnet user-secrets`/environment variables.
-- Log non-trivial decisions as a new ADR under [`ai/decisions/adr/`](../ai/decisions/adr/), and
-  append prompt history to [`ai/prompts/prompt-log.md`](../ai/prompts/prompt-log.md).
+- Log non-trivial decisions as a new ADR under [`ai/decisions/adr/`](../ai/decisions/adr/).
 - Prefer many small, topic-scoped files over one large file for docs/plans/decisions.
 - Commit messages: `feat(phase-N): <summary>` / `docs(phase-N): <summary>`.
 - A phase isn't done until `dotnet build` and `dotnet test` pass.

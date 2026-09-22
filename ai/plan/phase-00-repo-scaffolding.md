@@ -15,7 +15,6 @@ Nothing. This is the first phase.
 - [x] Add one file per phase under `ai/plan/`.
 - [x] Add `ai/decisions/adr/template.md` and the initial ADRs (Phase 01 covers writing their
       content in full; the folder and template exist as of this phase).
-- [x] Add `ai/prompts/prompt-log.md` with the prompt history so far.
 - [x] Add root `AGENTS.md` and `.github/copilot-instructions.md`.
 - [x] Add `.gitignore` and `.editorconfig`.
 - [x] Add root `README.md` pointing into `ai/` and `docs/`.

@@ -1,0 +1,3 @@
+@NotifyMe.Api_HostAddress = http://localhost:5062
+
+### Admin endpoints will be added starting in Phase 08 (see ai/plan/phase-08-api-layer.md)

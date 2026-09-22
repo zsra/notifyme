@@ -10,7 +10,7 @@ Phase 11 (test suite should be in its final shape).
 ## Steps
 - [ ] `.github/workflows/ci.yml`: restore, build, test on push and pull request.
 - [ ] Finalize root `README.md` with concrete run instructions once code exists.
-- [ ] Final pass over `ai/decisions/adr/` and `ai/prompts/prompt-log.md` for completeness.
+- [ ] Final pass over `ai/decisions/adr/` for completeness.
 - [ ] Tag/milestone commit marking the backend as feature-complete for this exercise.
 
 ## Verification

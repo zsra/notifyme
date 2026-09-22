@@ -41,9 +41,6 @@ for the full picture.
   `ai/plan/00-plan-overview.md`.
 - **Decision logging**: if you make a non-trivial design choice that isn't already covered by an
   ADR, add a new file under `ai/decisions/adr/` using `ai/decisions/adr/template.md`.
-- **Prompt logging**: append every significant prompt/interaction (and its outcome, including
-  what was rejected or corrected) to [`ai/prompts/prompt-log.md`](ai/prompts/prompt-log.md).
-  This is part of the project's required deliverables, not optional bookkeeping.
 - **No large monolithic files**: split plan/decision/design content into small, topic-scoped
   files rather than one large document.
 
