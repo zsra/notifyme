@@ -42,6 +42,16 @@ builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<NotifyMeDbContext>("postgres");
 
+// CORS for the local frontend dev server (see ai/decisions/adr/0009-frontend-stack.md). The
+// origin is configuration-driven (not hardcoded) so it can be tightened/changed per environment;
+// defaults to Vite's default dev port for a zero-config local frontend setup.
+const string FrontendCorsPolicy = "FrontendCorsPolicy";
+var frontendOrigin = builder.Configuration["Cors:FrontendOrigin"] ?? "http://localhost:5173";
+builder.Services.AddCors(options => options.AddPolicy(FrontendCorsPolicy, policy => policy
+    .WithOrigins(frontendOrigin)
+    .AllowAnyHeader()
+    .AllowAnyMethod()));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -53,6 +63,7 @@ if (app.Environment.IsDevelopment())
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
+app.UseCors(FrontendCorsPolicy);
 
 app.MapHealthChecks("/health");
 

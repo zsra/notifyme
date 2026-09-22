@@ -16,9 +16,11 @@ public static class NotificationsEndpoints
             DateTimeOffset? sentTo,
             ListNotificationsUseCase useCase,
             CancellationToken cancellationToken) =>
-            Results.Ok(await useCase.ExecuteAsync(status, alertRuleId, sentFrom, sentTo, cancellationToken)));
+            Results.Ok(await useCase.ExecuteAsync(status, alertRuleId, sentFrom, sentTo, cancellationToken)))
+            .Produces<IReadOnlyList<NotificationDto>>();
 
         group.MapGet("/{id:guid}", async (Guid id, GetNotificationUseCase useCase, CancellationToken cancellationToken) =>
-            Results.Ok(await useCase.ExecuteAsync(id, cancellationToken)));
+            Results.Ok(await useCase.ExecuteAsync(id, cancellationToken)))
+            .Produces<NotificationDto>();
     }
 }

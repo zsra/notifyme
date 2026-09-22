@@ -42,3 +42,19 @@ fetch through dispatch can be traced in the console output.
   results directory; merge/view with `reportgenerator` (`dotnet tool install -g
   dotnet-reportgenerator-globaltool`, then `reportgenerator -reports:<dir>\**\coverage.cobertura.xml
   -targetdir:coverage-report -reporttypes:Html`).
+
+## Frontend
+
+A React/TypeScript admin panel lives in `frontend/` (see ADR-0009 and
+`ai/plan/phase-13-frontend-foundation.md`). With the API running per "Local setup" above:
+
+```
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`, enter the `Admin:ApiKey` value configured on the backend, and use
+the UI. The API's `Cors:FrontendOrigin` setting (`appsettings.json`, defaults to
+`http://localhost:5173`) must match wherever the frontend dev server actually runs.
+

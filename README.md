@@ -39,6 +39,10 @@ Run the test suite with `dotnet test` from the repo root; see
 for Testcontainers-backed Postgres tests, `docker compose up -d mailhog` for the MailHog email
 check, nothing extra for WireMock-backed Slack tests).
 
+A React/TypeScript admin frontend lives in [`frontend/`](frontend/); see
+[`frontend/README.md`](frontend/README.md) for its own `npm install`/`npm run dev` setup once the
+backend above is running.
+
 ## Status
 
 The backend is feature-complete for this exercise: Domain and Application layers implement
@@ -57,5 +61,6 @@ status, and [`ai/decisions/adr/`](ai/decisions/adr/) for the key decisions made 
 The original brief is preserved at [`task-04-feature-design-and-build.docx`](task-04-feature-design-and-build.docx).
 
 The frontend (a React/TypeScript admin panel, kept deliberately simple and technical rather than
-visual) is now planned but not yet built: see ADR-0009 and Phases 13-15 in
-[`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md).
+visual) has its foundation in place (Phase 13: scaffolding, typed API client, auth, routing
+shell); the actual CRUD/read screens (Phase 14) and frontend testing/CI (Phase 15) are still to
+come. See ADR-0009 and Phases 13-15 in [`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md).

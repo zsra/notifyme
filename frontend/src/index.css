@@ -1,0 +1,19 @@
+/* Deliberately minimal: this project prioritizes technical substance over visual polish (see
+   ai/decisions/adr/0009-frontend-stack.md). Just enough for legible default rendering. */
+:root {
+  font: 16px/1.5 system-ui, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+

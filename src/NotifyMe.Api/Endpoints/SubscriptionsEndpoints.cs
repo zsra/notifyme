@@ -10,19 +10,22 @@ public static class SubscriptionsEndpoints
 
         group.MapGet("/", async (
             Guid? alertRuleId, Guid? channelConfigId, ListSubscriptionsUseCase useCase, CancellationToken cancellationToken) =>
-            Results.Ok(await useCase.ExecuteAsync(alertRuleId, channelConfigId, cancellationToken)));
+            Results.Ok(await useCase.ExecuteAsync(alertRuleId, channelConfigId, cancellationToken)))
+            .Produces<IReadOnlyList<SubscriptionDto>>();
 
         group.MapPost("/", async (
             CreateSubscriptionRequest request, ManageSubscriptionUseCase useCase, CancellationToken cancellationToken) =>
         {
             var dto = await useCase.SubscribeAsync(request, cancellationToken);
             return Results.Created($"/api/admin/subscriptions/{dto.Id}", dto);
-        });
+        })
+            .Produces<SubscriptionDto>(StatusCodes.Status201Created);
 
         group.MapDelete("/{id:guid}", async (Guid id, ManageSubscriptionUseCase useCase, CancellationToken cancellationToken) =>
         {
             await useCase.UnsubscribeAsync(id, cancellationToken);
             return Results.NoContent();
-        });
+        })
+            .Produces(StatusCodes.Status204NoContent);
     }
 }

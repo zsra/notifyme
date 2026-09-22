@@ -77,7 +77,18 @@ consumers.
 ## OpenAPI / Swagger
 
 The API exposes an OpenAPI document via `AddOpenApi()`/`MapOpenApi()` (development environment
-only), following the default ASP.NET Core minimal-API template pattern.
+only), following the default ASP.NET Core minimal-API template pattern. Every endpoint declares
+its response type via `.Produces<T>()` so the document's response schemas are fully typed (not
+just request bodies) - this is what lets the frontend (`frontend/`) generate accurate TypeScript
+types from it (see ADR-0009). `/health` is not part of this document, since it's ASP.NET Core's
+health checks middleware, not a `.Produces<T>()`-annotated minimal API endpoint.
+
+## CORS
+
+A CORS policy (see `Cors:FrontendOrigin` in `appsettings.json`) allows the configured frontend
+dev origin (default `http://localhost:5173`) to call the Admin API from the browser. This exists
+purely to support the local frontend (`frontend/`, see ADR-0009) and should be tightened per
+environment rather than left at its permissive local default.
 
 ## Notes
 

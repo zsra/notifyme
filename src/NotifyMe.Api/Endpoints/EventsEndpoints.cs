@@ -17,6 +17,7 @@ public static class EventsEndpoints
         var group = app.MapGroup("/events").WithTags("Events");
 
         group.MapPost("/trigger-simulated", async (IngestEventsUseCase useCase, CancellationToken cancellationToken) =>
-            Results.Ok(await useCase.ExecuteAsync(cancellationToken)));
+            Results.Ok(await useCase.ExecuteAsync(cancellationToken)))
+            .Produces<IngestEventsResult>();
     }
 }

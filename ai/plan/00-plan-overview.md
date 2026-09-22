@@ -4,8 +4,8 @@ Backend-first implementation plan for NotifyMe, built in small, independently ve
 Each phase has its own file with goal, dependencies, steps, and verification criteria. Update the
 checkboxes below as phases complete; keep this file as the single source of truth for status.
 
-Frontend is explicitly out of scope for this plan; it will be scoped separately once the Admin
-API contract (end of Phase 8) is stable.
+Frontend was explicitly out of scope until the Admin API contract (end of Phase 8) was stable;
+it is now scoped as Phases 13-15 (see ADR-0009).
 
 ## Phases
 
@@ -22,7 +22,7 @@ API contract (end of Phase 8) is stable.
 - [x] [Phase 10 - Cross-cutting concerns](phase-10-cross-cutting-concerns.md)
 - [x] [Phase 11 - Testing hardening](phase-11-testing-hardening.md)
 - [ ] [Phase 12 - CI & repo polish](phase-12-ci-and-repo-polish.md)
-- [ ] [Phase 13 - Frontend foundation & API integration](phase-13-frontend-foundation.md)
+- [x] [Phase 13 - Frontend foundation & API integration](phase-13-frontend-foundation.md)
 - [ ] [Phase 14 - Frontend admin screens](phase-14-frontend-admin-screens.md)
 - [ ] [Phase 15 - Frontend testing, CI, and docs](phase-15-frontend-testing-and-docs.md)
 
@@ -66,5 +66,9 @@ The frontend (deferred since the plan's start until the Admin API contract was s
 planned: ADR-0009 decides the stack (Vite + React + TypeScript, OpenAPI-generated types,
 TanStack Query, React Router, deliberately no CSS/UI framework or form library, API key in
 `sessionStorage`), and Phases 13-15 break the work into foundation/API integration, the actual
-CRUD/read screens, and testing/CI/docs, respectively. None of the frontend phases are
-implemented yet.
+CRUD/read screens, and testing/CI/docs, respectively. Phase 13 is done: `frontend/` is scaffolded
+and end-to-end verified against the real API (API key entry, typed `openapi-fetch` client
+generated from the Admin API's own OpenAPI document, routing shell, `/health` status page); this
+also surfaced and fixed a real gap in Phase 08's OpenAPI output (endpoints had no typed response
+schemas) via `.Produces<T>()` metadata, and required a new CORS policy on `NotifyMe.Api`. Phases
+14 and 15 (the actual CRUD screens; frontend testing/CI/docs) are not started yet.
