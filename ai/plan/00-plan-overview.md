@@ -14,7 +14,7 @@ API contract (end of Phase 8) is stable.
 - [x] [Phase 02 - Solution & project scaffolding](phase-02-solution-scaffolding.md)
 - [x] [Phase 03 - Domain layer](phase-03-domain-layer.md)
 - [x] [Phase 04 - Application layer](phase-04-application-layer.md)
-- [ ] [Phase 05 - Infrastructure: persistence](phase-05-infrastructure-persistence.md)
+- [x] [Phase 05 - Infrastructure: persistence](phase-05-infrastructure-persistence.md)
 - [ ] [Phase 06 - Infrastructure: event ingestion (simulated, visible cut)](phase-06-infrastructure-event-ingestion.md)
 - [ ] [Phase 07 - Infrastructure: notification channels](phase-07-infrastructure-notification-channels.md)
 - [ ] [Phase 08 - API layer](phase-08-api-layer.md)
@@ -31,7 +31,8 @@ they implement) but not on each other, so they can be worked in either order or 
 
 ## Current status
 
-Phases 00-04 done. Domain and Application layers are both implemented and unit tested (81
-tests passing total) with zero framework dependencies beyond FluentValidation in Application.
-Phase 05 (Infrastructure: persistence) is next - this is where the repository interfaces from
-Phase 04 get their first real (EF Core/PostgreSQL) implementation.
+Phases 00-05 done. Domain and Application layers are implemented and unit tested; Infrastructure
+now has a first real (EF Core/PostgreSQL) implementation of the Phase 04 repository interfaces,
+an initial migration, and a round-trip integration test against the docker-compose Postgres
+instance (83 tests passing total across unit and integration suites). Phase 06 (Infrastructure:
+event ingestion) is next.
