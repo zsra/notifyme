@@ -1,12 +1,16 @@
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NotifyMe.Application.AlertRules;
 using NotifyMe.Application.Alerts;
 using NotifyMe.Application.Channels;
+using NotifyMe.Application.Common.Resilience;
 using NotifyMe.Application.Events;
 using NotifyMe.Application.Notifications;
 using NotifyMe.Application.Subscriptions;
 using NotifyMe.Domain.Abstractions;
+using Polly;
 
 namespace NotifyMe.Application;
 
@@ -19,8 +23,28 @@ namespace NotifyMe.Application;
 /// </summary>
 public static class ApplicationServiceCollectionExtensions
 {
-    public static IServiceCollection AddNotifyMeApplication(this IServiceCollection services)
+    public static IServiceCollection AddNotifyMeApplication(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<ChannelSendResilienceOptions>(configuration.GetSection(ChannelSendResilienceOptions.SectionName));
+        services.AddSingleton(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<ChannelSendResilienceOptions>>().Value;
+            var builder = new ResiliencePipelineBuilder<NotificationDispatchResult>();
+
+            if (options.MaxRetryAttempts > 0)
+            {
+                builder.AddRetry(new Polly.Retry.RetryStrategyOptions<NotificationDispatchResult>
+                {
+                    ShouldHandle = new PredicateBuilder<NotificationDispatchResult>().HandleResult(result => !result.IsSuccess),
+                    MaxRetryAttempts = options.MaxRetryAttempts,
+                    Delay = options.BaseDelay,
+                    BackoffType = DelayBackoffType.Exponential,
+                });
+            }
+
+            return builder.Build();
+        });
+
         services.AddScoped<IAlertMatcher, AlertMatcher>();
         services.AddScoped<EvaluateAlertRulesService>();
         services.AddScoped<DispatchNotificationUseCase>();

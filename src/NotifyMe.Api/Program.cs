@@ -1,8 +1,10 @@
 using NotifyMe.Api.Authentication;
 using NotifyMe.Api.Endpoints;
 using NotifyMe.Api.ErrorHandling;
+using NotifyMe.Api.Workers;
 using NotifyMe.Application;
 using NotifyMe.Infrastructure.EventSources;
+using NotifyMe.Infrastructure.EventSources.Simulated;
 using NotifyMe.Infrastructure.NotificationChannels;
 using NotifyMe.Infrastructure.Persistence;
 
@@ -19,7 +21,8 @@ var connectionString = builder.Configuration["NOTIFYME_CONNECTION_STRING"]
 builder.Services.AddNotifyMePersistence(connectionString);
 builder.Services.AddSimulatedEventSource(builder.Configuration);
 builder.Services.AddNotifyMeNotificationChannels(builder.Configuration);
-builder.Services.AddNotifyMeApplication();
+builder.Services.AddNotifyMeApplication(builder.Configuration);
+builder.Services.AddHostedService<EventIngestionWorker>();
 
 builder.Services.AddScoped<ApiKeyEndpointFilter>();
 builder.Services.AddExceptionHandler<NotifyMeExceptionHandler>();

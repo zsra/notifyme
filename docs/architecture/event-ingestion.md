@@ -17,7 +17,7 @@ Task<IReadOnlyList<RawEvent>> FetchAsync(CancellationToken ct);
 ```
 
 Nothing in `Domain` or `Application` knows or cares whether events come from a simulator or a
-real feed. `EventIngestionWorker` (in `Api`, added from Phase 09 onward) depends only on
+real feed. `EventIngestionWorker` (in `Api/Workers/`, added in Phase 09) depends only on
 `IEventSource`, resolved via DI.
 
 ## The simulated implementation
@@ -29,8 +29,9 @@ is deterministic and testable when a seed is supplied; left unset, it seeds from
 normal `Random`. How many events a single `FetchAsync` call returns, and the polling interval a
 caller should use, are both configurable via the `EventIngestion:Simulated` appsettings section
 (`MinEventsPerFetch`, `MaxEventsPerFetch`, `PollingInterval`) - see
-`src/NotifyMe.Api/appsettings.json`. `SimulatedEventSource` itself only fetches on demand; the
-actual polling loop is the ingestion worker's responsibility (Phase 09).
+`src/NotifyMe.Api/appsettings.json`. `SimulatedEventSource` itself only fetches on demand;
+`EventIngestionWorker` (Phase 09) owns the actual polling loop, running one pass immediately on
+startup and then repeating on `PollingInterval`.
 
 Registration lives in `Infrastructure/EventSources/EventSourcesServiceCollectionExtensions.cs`
 (`AddSimulatedEventSource`), called from the `Api` composition root (from Phase 08 onward).
