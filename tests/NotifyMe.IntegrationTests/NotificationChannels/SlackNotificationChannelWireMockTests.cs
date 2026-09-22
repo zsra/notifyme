@@ -48,8 +48,8 @@ public class SlackNotificationChannelWireMockTests : IDisposable
 
         Assert.True(result.IsSuccess);
 
-        var logEntry = Assert.Single(_server.LogEntries);
-        Assert.Equal("POST", logEntry.RequestMessage.Method);
+        var logEntry = Assert.Single(_server.LogEntries)!;
+        Assert.Equal("POST", logEntry.RequestMessage!.Method);
         Assert.Contains("Disaster watch", logEntry.RequestMessage.Body);
         Assert.Contains("Magnitude 6.1 earthquake", logEntry.RequestMessage.Body);
     }

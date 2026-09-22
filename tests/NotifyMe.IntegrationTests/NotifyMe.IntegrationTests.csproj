@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +13,18 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.15.0" />
-    <PackageReference Include="WireMock.Net" Version="1.25.0" />
+    <PackageReference Include="WireMock.Net" Version="2.17.0" />
+    <!--
+      WireMock.Net 2.17.0 pulls a transitive Microsoft.OpenApi 3.x (via WireMock.Net.OpenApiParser
+      -> RamlToOpenApiConverter.SourceOnly), which conflicts with the 2.x-based source generator
+      output from this project's ProjectReference to NotifyMe.Api (Microsoft.AspNetCore.OpenApi's
+      generated code assumes the 2.x IOpenApiMediaType shape and fails to compile against 3.x).
+      Pin to the same patched 2.x version as NotifyMe.Api.csproj to keep the graph compile-compatible.
+      This is a deliberate downgrade from WireMock.Net's requested 3.10.2 floor; safe here because
+      the tests never exercise WireMock.Net's RAML/OpenAPI conversion feature. NU1605 (downgrade
+      warning) is suppressed for this project only.
+    -->
+    <PackageReference Include="Microsoft.OpenApi" Version="2.12.2" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>

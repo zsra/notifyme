@@ -11,6 +11,13 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.12" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+    <!--
+      Microsoft.AspNetCore.OpenApi 10.0.10 depends on Microsoft.OpenApi >= 2.0.0 (no upper bound),
+      which resolves to the vulnerable 2.0.0 by default (GHSA-v5pm-xwqc-g5wc, fixed in 2.7.5).
+      Pin explicitly to the latest patched 2.x release to stay within the same major version
+      Microsoft.AspNetCore.OpenApi was built against, rather than jumping to the breaking 3.x line.
+    -->
+    <PackageReference Include="Microsoft.OpenApi" Version="2.12.2" />
   </ItemGroup>
 
   <ItemGroup>
