@@ -39,9 +39,21 @@ Run the test suite with `dotnet test` from the repo root; see
 for Testcontainers-backed Postgres tests, `docker compose up -d mailhog` for the MailHog email
 check, nothing extra for WireMock-backed Slack tests).
 
-A React/TypeScript admin frontend lives in [`frontend/`](frontend/); see
-[`frontend/README.md`](frontend/README.md) for its own `npm install`/`npm run dev` setup once the
-backend above is running.
+### Launching the frontend
+
+A React/TypeScript admin panel lives in [`frontend/`](frontend/). With the backend above already
+running (`dotnet run --project src/NotifyMe.Api`, default `http://localhost:5062`):
+
+```
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`, enter the same Admin API key you set with `dotnet user-secrets`
+above, and you're in (the key is kept in `sessionStorage` only, for the lifetime of the browser
+tab). See [`frontend/README.md`](frontend/README.md) for the full stack overview, regenerating
+API types, and other scripts (`npm run build`, `npm run lint`, `npm test`).
 
 ## Status
 
