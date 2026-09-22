@@ -16,7 +16,7 @@ API contract (end of Phase 8) is stable.
 - [x] [Phase 04 - Application layer](phase-04-application-layer.md)
 - [x] [Phase 05 - Infrastructure: persistence](phase-05-infrastructure-persistence.md)
 - [x] [Phase 06 - Infrastructure: event ingestion (simulated, visible cut)](phase-06-infrastructure-event-ingestion.md)
-- [ ] [Phase 07 - Infrastructure: notification channels](phase-07-infrastructure-notification-channels.md)
+- [x] [Phase 07 - Infrastructure: notification channels](phase-07-infrastructure-notification-channels.md)
 - [ ] [Phase 08 - API layer](phase-08-api-layer.md)
 - [ ] [Phase 09 - Background workers](phase-09-background-workers.md)
 - [ ] [Phase 10 - Cross-cutting concerns](phase-10-cross-cutting-concerns.md)
@@ -31,9 +31,9 @@ they implement) but not on each other, so they can be worked in either order or 
 
 ## Current status
 
-Phases 00-06 done. Domain and Application layers are implemented and unit tested; Infrastructure
-has a real (EF Core/PostgreSQL) implementation of the Phase 04 repository interfaces plus a
-deterministic, seedable `SimulatedEventSource` behind the `IEventSource` seam, with a documented
-extension point for a real source later (86 tests passing total across unit and integration
-suites). Phase 07 (Infrastructure: notification channels) is next; it can be worked independently
-of Phase 06 since both only depend on Phase 04.
+Phases 00-07 done. Domain and Application layers are implemented and unit tested; Infrastructure
+now has real (EF Core/PostgreSQL) repositories, a deterministic `SimulatedEventSource`, and real
+Slack (webhook)/Email (SMTP via MailKit) notification channels, both verified end-to-end locally
+(WireMock.Net for Slack, MailHog for Email) - 94 tests passing total across unit and integration
+suites. Phase 08 (API layer) is next, which is also where these pieces first get composed
+together via DI.
