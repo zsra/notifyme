@@ -25,7 +25,7 @@ it is now scoped as Phases 13-15 (see ADR-0009).
 - [x] [Phase 13 - Frontend foundation & API integration](phase-13-frontend-foundation.md)
 - [x] [Phase 14 - Frontend admin screens](phase-14-frontend-admin-screens.md)
 - [x] [Phase 15 - Frontend testing, CI, and docs](phase-15-frontend-testing-and-docs.md)
-- [ ] [Phase 16 - End-user self-service (accounts + user-scoped alerts)](phase-16-user-self-service.md)
+- [x] [Phase 16 - End-user self-service (accounts + user-scoped alerts)](phase-16-user-self-service.md)
 
 ## Sequencing notes
 
@@ -87,3 +87,23 @@ real backend needed); `.github/workflows/ci.yml` gained a second `frontend` job
 describe the frontend as done rather than deferred. This also surfaced a Windows-specific Vitest
 quirk (worker-pool crash when invoked via `npm --prefix <dir> run test` instead of a plain `cd`
 first), documented in `frontend/README.md` and `docs/runbook.md` so CI/local runs avoid it.
+
+Phase 16 is done: ADR-0010 decides the end-user self-service design (a `User` entity, PBKDF2
+password hashing, JWT bearer auth entirely separate from the Admin API key, and a nullable
+`OwnerUserId` on `AlertRule`/`ChannelConfig`/`Subscription` reusing the same tables/use cases
+rather than a parallel per-tenant schema). Domain gained `User`; Application gained
+register/login use cases and an optional trailing `ownerUserId` parameter on the existing
+AlertRule/Channel/Subscription use cases (Admin call sites pass nothing and are unaffected);
+Infrastructure gained the `AddUsersAndOwnership` EF Core migration and repository updates; the Api
+gained JWT bearer middleware (configured from the `Jwt` appsettings section) and
+`/api/auth/register`, `/api/auth/login`, `/api/me/alert-rules`, `/api/me/channels`,
+`/api/me/subscriptions` endpoints, plus `ConflictException`->409 and
+`AuthenticationFailedException`->401 mappings in `NotifyMeExceptionHandler`. Full backend suite:
+136 tests passing. The frontend gained `/login`, `/register`, and a consolidated `/my` page
+(create/list/delete, no edit, across all three of the caller's own alert rules/channels/
+subscriptions), a second `MyAuthContext`/`MyAuthGate` auth flow (JWT in `sessionStorage`,
+independent of the Admin API key flow), and `createPublicApiClient`/`createMyApiClient` in
+`src/api/client.ts` - verified via `npm run build`, `npm run lint`, and `npm test` (18 tests
+passing across 6 files). `docs/architecture/overview.md`, `docs/architecture/data-model.md`,
+`docs/runbook.md`, root `README.md`, and `frontend/README.md` were updated to describe the new
+self-service surface.

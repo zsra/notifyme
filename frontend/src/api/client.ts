@@ -33,3 +33,38 @@ export function createAdminApiClient(apiKey: string, onUnauthorized: () => void)
 }
 
 export type AdminApiClient = ReturnType<typeof createAdminApiClient>;
+
+/**
+ * An untyped-auth client for the public (`AllowAnonymous`) `/api/auth/*` endpoints - register and
+ * login happen before any token exists, so there's nothing to attach to requests yet.
+ */
+export function createPublicApiClient() {
+  return createClient<paths>({ baseUrl: API_BASE_URL });
+}
+
+/**
+ * A typed client for the end-user self-service `/api/me/*` endpoints (see ADR-0010), bound to
+ * the caller's JWT bearer token. `onUnauthorized` mirrors the Admin client's behavior: a `401`
+ * (e.g. an expired token) clears the stored session and sends the user back to the login screen.
+ */
+export function createMyApiClient(token: string, onUnauthorized: () => void) {
+  const client = createClient<paths>({ baseUrl: API_BASE_URL });
+
+  const authMiddleware: Middleware = {
+    onRequest({ request }) {
+      request.headers.set("Authorization", `Bearer ${token}`);
+      return request;
+    },
+    onResponse({ response }) {
+      if (response.status === 401) {
+        onUnauthorized();
+      }
+      return response;
+    },
+  };
+
+  client.use(authMiddleware);
+  return client;
+}
+
+export type MyApiClient = ReturnType<typeof createMyApiClient>;

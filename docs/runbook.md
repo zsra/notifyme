@@ -10,16 +10,25 @@
    environment variables, per the standard ASP.NET Core host configuration order; in CI/deployment,
    set `Admin__ApiKey` and `ConnectionStrings__Postgres` (or `NOTIFYME_CONNECTION_STRING`) as
    environment variables instead of user-secrets.
-3. `dotnet ef database update --project src/NotifyMe.Infrastructure --startup-project src/NotifyMe.Api`
+3. `dotnet user-secrets set "Jwt:SigningKey" "<a long random string, 32+ bytes>" --project src/NotifyMe.Api`
+   - signs/validates end-user JWT bearer tokens for the self-service `/api/me/*` endpoints (see
+   [ADR-0010](../ai/decisions/adr/0010-end-user-self-service.md)); set `Jwt__SigningKey` as an
+   environment variable in CI/deployment instead. Entirely separate from `Admin:ApiKey` - the two
+   never grant access to each other's endpoints.
+4. `dotnet ef database update --project src/NotifyMe.Infrastructure --startup-project src/NotifyMe.Api`
    - applies migrations.
-4. `dotnet run --project src/NotifyMe.Api` - starts the API.
-5. Open the OpenAPI document at the API's `/openapi/v1.json` endpoint (development only) to
+5. `dotnet run --project src/NotifyMe.Api` - starts the API.
+6. Open the OpenAPI document at the API's `/openapi/v1.json` endpoint (development only) to
    explore the Admin API.
-6. Open MailHog's web UI (default `http://localhost:8025`) to see delivered emails.
-7. `GET /health` (no API key required) reports `Healthy`/`Unhealthy` based on Postgres
+7. Open MailHog's web UI (default `http://localhost:8025`) to see delivered emails.
+8. `GET /health` (no API key required) reports `Healthy`/`Unhealthy` based on Postgres
    reachability.
-8. Use `POST /api/admin/events/trigger-simulated` (with the `X-Api-Key` header) to force an event
+9. Use `POST /api/admin/events/trigger-simulated` (with the `X-Api-Key` header) to force an event
    through the pipeline on demand instead of waiting for `EventIngestionWorker`'s polling interval.
+10. Register an end-user account with `POST /api/auth/register` (`{ "email", "password" }`, no
+    auth header required) to get a JWT bearer token, then call `/api/me/alert-rules`,
+    `/api/me/channels`, `/api/me/subscriptions` with `Authorization: Bearer <token>` to manage
+    that user's own rows (see ADR-0010).
 
 ## Logging
 
@@ -45,8 +54,9 @@ fetch through dispatch can be traced in the console output.
 
 ## Frontend
 
-A React/TypeScript admin panel lives in `frontend/` (see ADR-0009 and
-`ai/plan/phase-13-frontend-foundation.md`). With the API running per "Local setup" above:
+A React/TypeScript frontend lives in `frontend/` (see ADR-0009 and
+`ai/plan/phase-13-frontend-foundation.md`), hosting both the Admin panel and the end-user
+self-service screens (Phase 16, see ADR-0010). With the API running per "Local setup" above:
 
 ```
 cd frontend
@@ -54,9 +64,11 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`, enter the `Admin:ApiKey` value configured on the backend, and use
-the UI. The API's `Cors:FrontendOrigin` setting (`appsettings.json`, defaults to
-`http://localhost:5173`) must match wherever the frontend dev server actually runs.
+Open `http://localhost:5173`. For the Admin panel (`/`), enter the `Admin:ApiKey` value
+configured on the backend. For self-service (`/register` or `/login`), create/use an end-user
+account instead - no Admin API key involved. The API's `Cors:FrontendOrigin` setting
+(`appsettings.json`, defaults to `http://localhost:5173`) must match wherever the frontend dev
+server actually runs.
 
 Run its test suite with `cd frontend && npm test` (Vitest + React Testing Library; see
 `frontend/README.md#testing`). Run it from inside `frontend/`, not via `npm --prefix frontend

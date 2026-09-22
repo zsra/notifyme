@@ -7,10 +7,17 @@ what criteria) and channel subscriptions (where to send matching notifications: 
 more later). Behind the scenes, an ingestion pipeline pulls in events, matches them against
 active alert rules, and dispatches notifications over the subscribed channels.
 
+Separately, an end user (not an admin) can register their own account and manage their own
+alert rules, channels, and subscriptions without the Admin API key (see
+[ADR-0010](../../ai/decisions/adr/0010-end-user-self-service.md)). This is an additive
+capability built on the same entities and matching/dispatch pipeline, not a parallel system.
+
 ```mermaid
 flowchart LR
     Admin["Admin (browser)"] -->|uses| Frontend["NotifyMe frontend (React/TS admin panel)"]
     Frontend -->|typed HTTP, X-Api-Key header| Api
+    EndUser["End user (browser)"] -->|uses| Frontend
+    Frontend -->|typed HTTP, Authorization: Bearer JWT| Api
     Api["NotifyMe.Api"] --> App["NotifyMe.Application"]
     App --> Dom["NotifyMe.Domain"]
     App --> Infra["NotifyMe.Infrastructure"]
@@ -25,7 +32,9 @@ separate Vite/React/TypeScript app, not part of the .NET solution or its depende
 talks to `NotifyMe.Api` purely over HTTP, using a client generated from the Api's own OpenAPI
 document (`openapi-typescript`/`openapi-fetch`) so its view of the contract can't silently drift.
 It has no direct access to `Domain`/`Application`/`Infrastructure` and is not itself deployed as
-part of the backend.
+part of the backend. It hosts both the Admin panel (`/`, `/alert-rules`, ...) and the end-user
+self-service screens (`/login`, `/register`, `/my`) side by side, using two entirely separate,
+non-interacting auth mechanisms (Admin API key vs. JWT bearer token).
 
 ## Component / layering view
 
@@ -72,6 +81,24 @@ interfaces.
   `ProblemDetails` response by `NotifyMeExceptionHandler`, with unrecognized exceptions mapped to
   a generic 500 (no internal details leaked) and logged server-side.
 
+## End-user self-service auth
+
+See [ADR-0010](../../ai/decisions/adr/0010-end-user-self-service.md) for the full rationale.
+Summary:
+
+- `POST /api/auth/register` and `POST /api/auth/login` (public, no auth required) create a
+  `User` (email + PBKDF2-hashed password) and return a short-lived JWT bearer token.
+- `/api/me/alert-rules`, `/api/me/channels`, `/api/me/subscriptions` require that JWT (validated
+  by ASP.NET Core's JWT bearer middleware, configured from the `Jwt` appsettings section) and are
+  scoped to the caller: every request resolves the caller's user id from the token's claims and
+  passes it through as an optional `ownerUserId` parameter to the *same* Application-layer use
+  cases the Admin API calls (with `ownerUserId: null`). A nullable `OwnerUserId` column on
+  `AlertRule`/`ChannelConfig`/`Subscription` distinguishes admin/global-owned rows (`null`) from
+  end-user-owned rows.
+- This is a second, entirely separate authentication scheme from the Admin API key - a JWT never
+  grants Admin API access and the Admin API key never grants `/api/me/*` access. The Admin API
+  continues to see and manage every row (owned or not); an end user only ever sees their own.
+
 ## Related documents
 
 - [`event-ingestion.md`](event-ingestion.md) - the simulated event source and its extension seam.
@@ -81,3 +108,5 @@ interfaces.
 - [`../api/admin-api.md`](../api/admin-api.md) - the Admin API contract.
 - [`../../frontend/README.md`](../../frontend/README.md) - the admin frontend's stack, local dev,
   and test setup.
+- [`../../ai/decisions/adr/0010-end-user-self-service.md`](../../ai/decisions/adr/0010-end-user-self-service.md) -
+  the end-user self-service design decision.

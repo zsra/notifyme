@@ -18,3 +18,8 @@ export type CreateSubscriptionRequest = components["schemas"]["CreateSubscriptio
 export type NotificationDto = components["schemas"]["NotificationDto"];
 
 export type IngestEventsResult = components["schemas"]["IngestEventsResult"];
+
+export type UserDto = components["schemas"]["UserDto"];
+export type AuthResultDto = components["schemas"]["AuthResultDto"];
+export type RegisterUserRequest = components["schemas"]["RegisterUserRequest"];
+export type LoginUserRequest = components["schemas"]["LoginUserRequest"];

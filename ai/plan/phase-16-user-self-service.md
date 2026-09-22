@@ -61,4 +61,4 @@ entities and Admin API use cases rather than replacing them.
 
 ## Status
 
-In progress (2026-09-22).
+Done (2026-09-22).

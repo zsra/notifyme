@@ -5,6 +5,11 @@ news, market movements, natural disasters) and get notified via Email and Slack,
 channels addable later. Built from a deliberately vague product brief as part of an exercise in
 AI-directed software design and delivery.
 
+Two ways to use it: an Admin API-key-gated admin panel that manages everything, and a
+self-service flow where anyone can register their own account and manage their own alert rules,
+channels, and subscriptions without needing that key (see
+[ADR-0010](ai/decisions/adr/0010-end-user-self-service.md)).
+
 ## Where things live
 
 - [`ai/`](ai/) - process artifacts: the implementation plan and the decision log (ADRs). Read
@@ -41,8 +46,9 @@ check, nothing extra for WireMock-backed Slack tests).
 
 ### Launching the frontend
 
-A React/TypeScript admin panel lives in [`frontend/`](frontend/). With the backend above already
-running (`dotnet run --project src/NotifyMe.Api`, default `http://localhost:5062`):
+A React/TypeScript frontend lives in [`frontend/`](frontend/), hosting both the admin panel and
+the end-user self-service screens. With the backend above already running
+(`dotnet run --project src/NotifyMe.Api`, default `http://localhost:5062`):
 
 ```
 cd frontend
@@ -50,10 +56,13 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`, enter the same Admin API key you set with `dotnet user-secrets`
-above, and you're in (the key is kept in `sessionStorage` only, for the lifetime of the browser
-tab). See [`frontend/README.md`](frontend/README.md) for the full stack overview, regenerating
-API types, and other scripts (`npm run build`, `npm run lint`, `npm test`).
+Open `http://localhost:5173`. For the admin panel, enter the same Admin API key you set with
+`dotnet user-secrets` above (kept in `sessionStorage` only, for the lifetime of the browser tab).
+For self-service, go to `/register` to create your own account (or `/login` if you already have
+one) and manage your own alert rules, channels, and subscriptions at `/my` - no Admin API key
+needed; a JWT bearer token is issued instead and, likewise, kept in `sessionStorage` only. See
+[`frontend/README.md`](frontend/README.md) for the full stack overview, regenerating API types,
+and other scripts (`npm run build`, `npm run lint`, `npm test`).
 
 ## Status
 
@@ -78,3 +87,10 @@ visual) is done: Phase 13 (foundation: scaffolding, typed API client, auth, rout
 Phase 14 (Alert Rules/Channels/Subscriptions/Notifications screens, manual event trigger), and
 Phase 15 (Vitest/React Testing Library suite, CI job, docs) are all complete. See ADR-0009 and
 Phases 13-15 in [`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md).
+
+Phase 16 added end-user self-service on top of that: a `User` entity, JWT bearer auth entirely
+separate from the Admin API key, a nullable `OwnerUserId` on `AlertRule`/`ChannelConfig`/
+`Subscription` so the same tables and use cases serve both admin-owned and user-owned rows, new
+`/api/auth/*` and `/api/me/*` endpoints, and `/login`, `/register`, `/my` screens in the same
+frontend app. See [ADR-0010](ai/decisions/adr/0010-end-user-self-service.md) and Phase 16 in
+[`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md).
