@@ -1,29 +1,37 @@
-# Runbook (draft, placeholder)
+# Runbook
 
-Status: draft placeholder written in Phase 01, before any code exists. This will be rewritten
-with concrete, verified steps once Phase 02 (solution scaffolding) and later phases land.
-
-## Expected local setup, once implemented
+## Local setup
 
 1. `docker compose up -d` - starts PostgreSQL and MailHog.
-2. `dotnet user-secrets set "Notifications:Slack:WebhookUrl" "<your webhook url>"` (and any
-   other secrets) against `src/NotifyMe.Api`.
+2. `dotnet user-secrets set "Admin:ApiKey" "<your local key>" --project src/NotifyMe.Api` (and
+   any other secrets, e.g. a real Slack webhook URL as a channel's `Target` via the Admin API
+   itself, not via configuration). Configuration is layered
+   `appsettings.json` -> `appsettings.{Environment}.json` -> user secrets (Development only) ->
+   environment variables, per the standard ASP.NET Core host configuration order; in CI/deployment,
+   set `Admin__ApiKey` and `ConnectionStrings__Postgres` (or `NOTIFYME_CONNECTION_STRING`) as
+   environment variables instead of user-secrets.
 3. `dotnet ef database update --project src/NotifyMe.Infrastructure --startup-project src/NotifyMe.Api`
    - applies migrations.
 4. `dotnet run --project src/NotifyMe.Api` - starts the API.
-5. Open Swagger at the API's `/swagger` endpoint to explore the Admin API.
+5. Open the OpenAPI document at the API's `/openapi/v1.json` endpoint (development only) to
+   explore the Admin API.
 6. Open MailHog's web UI (default `http://localhost:8025`) to see delivered emails.
-7. Use `POST /api/admin/events/trigger-simulated` (with the `X-Api-Key` header) to force an event
-   through the pipeline on demand instead of waiting for the background worker's polling
-   interval.
+7. `GET /health` (no API key required) reports `Healthy`/`Unhealthy` based on Postgres
+   reachability.
+8. Use `POST /api/admin/events/trigger-simulated` (with the `X-Api-Key` header) to force an event
+   through the pipeline on demand instead of waiting for `EventIngestionWorker`'s polling interval.
+
+## Logging
+
+Structured logging is provided by Serilog (`Serilog.AspNetCore`), configured entirely from the
+`Serilog` appsettings section (console sink by default). Each ingestion run and each normalized
+event carries a correlation id (`IngestionRunId`/`CorrelationId` log-scope properties) threaded
+through `IngestEventsUseCase` and `DispatchNotificationUseCase`, so a single event's journey from
+fetch through dispatch can be traced in the console output.
 
 ## Running tests
 
 - `dotnet test` at the repo root runs unit tests.
-- Integration tests require Docker running locally (Testcontainers spins up PostgreSQL; WireMock.Net
-  and MailHog checks are part of the same suite).
-
-## Known gaps as of this draft
-
-No code exists yet. This document exists so the eventual "how do I run this" answer has a home
-from the start, rather than being written as an afterthought.
+- Integration tests require Docker running locally (`docker compose up -d postgres mailhog`) for
+  the Postgres-backed and MailHog-backed tests; WireMock.Net-backed tests spin up their own
+  in-process server.

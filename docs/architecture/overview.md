@@ -50,6 +50,20 @@ interfaces.
 5. Each attempt is recorded as a `Notification` with a status (Pending/Sent/Failed), queryable
    via the Admin API's notification history endpoint.
 
+## Operational concerns
+
+- **Logging**: Serilog (console sink, configured from the `Serilog` appsettings section) with
+  correlation-id log scopes threaded through the ingestion -> match -> dispatch pipeline.
+- **Health**: `GET /health` reports the Postgres dependency's status via
+  `Microsoft.Extensions.Diagnostics.HealthChecks`.
+- **Configuration**: layered `appsettings.json` -> `appsettings.{Environment}.json` -> user
+  secrets (Development only) -> environment variables, the standard ASP.NET Core host
+  configuration order; no real secrets are committed anywhere in the repo (see
+  [`../runbook.md`](../runbook.md)).
+- **Errors**: every exception reaching the Api layer is normalized to an RFC 7807
+  `ProblemDetails` response by `NotifyMeExceptionHandler`, with unrecognized exceptions mapped to
+  a generic 500 (no internal details leaked) and logged server-side.
+
 ## Related documents
 
 - [`event-ingestion.md`](event-ingestion.md) - the simulated event source and its extension seam.

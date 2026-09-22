@@ -19,7 +19,7 @@ API contract (end of Phase 8) is stable.
 - [x] [Phase 07 - Infrastructure: notification channels](phase-07-infrastructure-notification-channels.md)
 - [x] [Phase 08 - API layer](phase-08-api-layer.md)
 - [x] [Phase 09 - Background workers](phase-09-background-workers.md)
-- [ ] [Phase 10 - Cross-cutting concerns](phase-10-cross-cutting-concerns.md)
+- [x] [Phase 10 - Cross-cutting concerns](phase-10-cross-cutting-concerns.md)
 - [ ] [Phase 11 - Testing hardening](phase-11-testing-hardening.md)
 - [ ] [Phase 12 - CI & repo polish](phase-12-ci-and-repo-polish.md)
 - [ ] Frontend - deferred, to be planned separately once Phase 08 is stable
@@ -31,7 +31,7 @@ they implement) but not on each other, so they can be worked in either order or 
 
 ## Current status
 
-Phases 00-09 done. Domain and Application layers are implemented and unit tested; Infrastructure
+Phases 00-10 done. Domain and Application layers are implemented and unit tested; Infrastructure
 has real (EF Core/PostgreSQL) repositories, a deterministic `SimulatedEventSource`, and real
 Slack (webhook)/Email (SMTP via MailKit) notification channels, both verified end-to-end locally
 (WireMock.Net for Slack, MailHog for Email). The Admin API (Phase 08) composes all of this via DI:
@@ -41,5 +41,10 @@ trigger-simulated-event endpoint, API-key auth (`IEndpointFilter`), `ProblemDeta
 `EventIngestionWorker` hosted service polls on the configured interval so events flow end-to-end
 without manual triggering, channel sends go through a Polly retry/backoff pipeline, and
 correlation IDs (per ingestion run and per normalized event) are threaded through ingestion,
-matching, and dispatch via `ILogger` scopes - 104 tests passing total across unit and integration
-suites. Phase 10 (Cross-cutting concerns: Serilog, health checks, config layering) is next.
+matching, and dispatch via `ILogger` scopes. Phase 10 adds operational maturity: Serilog
+structured logging (console sink, configured from the `Serilog` appsettings section), a
+`/health` endpoint backed by a Postgres dependency check, a `UserSecretsId` enabling local
+secret storage, and a hardened `NotifyMeExceptionHandler` that maps every otherwise-unhandled
+exception to a generic 500 `ProblemDetails` (logged server-side, no internals leaked to
+clients) - 105 tests passing total across unit and integration suites. Phase 11 (Testing
+hardening) is next.

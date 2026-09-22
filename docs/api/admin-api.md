@@ -61,6 +61,19 @@ Errors use RFC 7807 `ProblemDetails` with a consistent shape:
 }
 ```
 
+`NotFoundException` maps to 404, `FluentValidation.ValidationException`/`ArgumentException` map
+to 400. Any exception not otherwise recognized maps to a generic 500 with a fixed,
+non-descriptive `detail` message ("An unexpected error occurred while processing the request.") -
+the real exception is logged server-side (via Serilog) but never included in the response, to
+avoid leaking internals to callers.
+
+## Health
+
+`GET /health` (outside the `/api/admin` group, so no `X-Api-Key` header required) reports
+`Healthy`/`Unhealthy` based on whether the Postgres database is reachable. Intended for
+operational probes (e.g. container orchestration liveness/readiness checks), not for API
+consumers.
+
 ## OpenAPI / Swagger
 
 The API exposes an OpenAPI document via `AddOpenApi()`/`MapOpenApi()` (development environment

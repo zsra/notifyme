@@ -6,13 +6,21 @@ using NotifyMe.Application.Common.Exceptions;
 namespace NotifyMe.Api.ErrorHandling;
 
 /// <summary>
-/// Maps exceptions the Application layer is known to throw to RFC 7807 `ProblemDetails`
-/// responses, per docs/api/admin-api.md's error format. Anything not recognized here is left
-/// unhandled (returns <c>false</c>) so the default developer/production exception page still
-/// applies and the failure isn't silently swallowed.
+/// Maps every exception that reaches it to an RFC 7807 `ProblemDetails` response, per
+/// docs/api/admin-api.md's error format: exceptions the Application layer is known to throw get
+/// a specific, informative mapping; anything else falls back to a generic 500 with no exception
+/// details leaked to the client (OWASP: don't expose stack traces/internals), while the full
+/// exception is still logged server-side for diagnosis.
 /// </summary>
 public sealed class NotifyMeExceptionHandler : IExceptionHandler
 {
+    private readonly ILogger<NotifyMeExceptionHandler> _logger;
+
+    public NotifyMeExceptionHandler(ILogger<NotifyMeExceptionHandler> logger)
+    {
+        _logger = logger;
+    }
+
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         var problemDetails = exception switch
@@ -38,13 +46,18 @@ public sealed class NotifyMeExceptionHandler : IExceptionHandler
                 Status = StatusCodes.Status400BadRequest,
                 Detail = argument.Message,
             },
-            _ => null,
+            _ => new ProblemDetails
+            {
+                Type = "https://example.com/errors/unexpected",
+                Title = "An unexpected error occurred",
+                Status = StatusCodes.Status500InternalServerError,
+                Detail = "An unexpected error occurred while processing the request.",
+            },
         };
 
-        if (problemDetails is null)
-        {
-            return false;
-        }
+        var logLevel = problemDetails.Status >= StatusCodes.Status500InternalServerError ? LogLevel.Error : LogLevel.Warning;
+        _logger.Log(logLevel, exception, "Request {TraceId} failed with {StatusCode}: {ExceptionMessage}",
+            httpContext.TraceIdentifier, problemDetails.Status, exception.Message);
 
         problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
         httpContext.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
