@@ -25,11 +25,12 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-var connectionString = builder.Configuration["NOTIFYME_CONNECTION_STRING"]
-    ?? builder.Configuration.GetConnectionString("Postgres")
-    ?? "Host=localhost;Port=5432;Database=notifyme;Username=notifyme;Password=notifyme_dev_only";
-
-builder.Services.AddNotifyMePersistence(connectionString);
+// The connection string is resolved lazily from `builder.Configuration` inside
+// `AddNotifyMePersistence` (not eagerly here) so that `WebApplicationFactory`-based integration
+// tests' `ConfigureAppConfiguration` overrides - only merged into the final configuration during
+// `builder.Build()` - are picked up correctly. See the doc comment on
+// `PersistenceServiceCollectionExtensions.AddNotifyMePersistence` for the full explanation.
+builder.Services.AddNotifyMePersistence(builder.Configuration);
 builder.Services.AddSimulatedEventSource(builder.Configuration);
 builder.Services.AddNotifyMeNotificationChannels(builder.Configuration);
 builder.Services.AddNotifyMeApplication(builder.Configuration);

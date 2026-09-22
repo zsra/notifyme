@@ -73,21 +73,36 @@ Phase 09 (pipeline must be functionally complete).
 A real CI run (after the Phase 12 NuGet Audit remediation) intermittently failed 6 of the
 `WebApplicationFactory`-based API tests with `Npgsql.NpgsqlException: Failed to connect to
 127.0.0.1:5432` / connection refused, even though the shared `PostgresContainerFixture`'s
-container reported itself ready moments earlier. Root cause: `AdminApiWebApplicationFactory`'s
-constructor captured `postgresFixture.ConnectionString` into a field immediately, but that
-property is only populated inside `PostgresContainerFixture.InitializeAsync()` (an
-`IAsyncLifetime` callback awaited by xUnit before tests run, not necessarily before every
-same-collection fixture is *constructed*). If the class fixture's constructor ran before that
-completed, it captured the property's default empty-string value, and an empty Npgsql connection
-string silently falls back to Npgsql's own defaults (`localhost`/`5432`) instead of throwing -
-which is coincidentally why this passed locally (nothing was listening on `5432` there either
-most of the time, but occasionally a stray local Postgres/Testcontainers instance masked it) yet
-failed deterministically-ish in CI. Fixed by storing the `PostgresContainerFixture` reference
-itself and reading `.ConnectionString` lazily inside the `ConfigureAppConfiguration` callback
-(which only runs when the test host is actually built, always after the fixture is fully
-initialized), removing the race entirely. See
-`tests/NotifyMe.IntegrationTests/Api/AdminApiWebApplicationFactory.cs`. Verified with a full
-local `dotnet test` (110/110 passing).
+container reported itself ready moments earlier. First (incomplete) fix attempt: hardened
+`AdminApiWebApplicationFactory` to read `PostgresContainerFixture.ConnectionString` lazily
+inside `ConfigureAppConfiguration` instead of capturing it eagerly in its constructor - a real
+latent bug, but not the actual cause of the CI failures, since the very next CI run failed
+identically even with that fix in place.
+
+**Actual root cause**, found by reproducing the failure locally (had to `docker stop` the local
+docker-compose Postgres container first - it had been running on port 5432 for hours and was
+silently masking the bug the whole time, which is exactly why every local `dotnet test` run had
+been passing): `src/NotifyMe.Api/Program.cs` resolved the Postgres connection string *eagerly*,
+as a plain local variable, in the top-level statements between `WebApplication.CreateBuilder(args)`
+and `builder.Build()`. `WebApplicationFactory<Program>`'s `ConfigureWebHost` -> `ConfigureAppConfiguration`
+override (how `AdminApiWebApplicationFactory` points the app at its ephemeral Testcontainers
+Postgres) is only merged into the final `IConfiguration` during `builder.Build()` - it is never
+visible to code that reads `builder.Configuration` directly *before* that call. `Admin:ApiKey`
+and `EventIngestion:Simulated:PollingInterval` were unaffected because those are consumed later,
+via DI-bound options resolved after `Build()`; only the connection string was read too early, so
+it always fell through to the hardcoded `Host=localhost;Port=5432;...` default - deterministically,
+every time, in CI, where nothing is listening on that port.
+
+Fixed by moving connection-string resolution out of `Program.cs` entirely: `AddNotifyMePersistence`
+now takes `IConfiguration` (instead of a pre-resolved `string`) and resolves the connection string
+lazily inside the `AddDbContext` options delegate, which EF Core invokes at DI-resolution time -
+always after `Build()` has run and any `WebApplicationFactory` configuration overrides have been
+merged in. See `src/NotifyMe.Api/Program.cs` and
+`src/NotifyMe.Infrastructure/Persistence/PersistenceServiceCollectionExtensions.cs`. Verified by
+stopping the local docker-compose Postgres (removing the accidental local masking) and running the
+full `dotnet test` (110/110 passing) with nothing else listening on port 5432 - a genuine
+CI-equivalent local repro and fix, not just a hopeful local pass.
 
 ## Status
 Done (2026-09-22).
+
