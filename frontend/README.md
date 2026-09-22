@@ -47,3 +47,19 @@ This overwrites `src/api/schema.d.ts`. Never hand-edit that file.
 - `npm run build` - type-checks (`tsc -b`) and produces a production build.
 - `npm run lint` - runs Oxlint.
 - `npm run preview` - serves the production build locally.
+- `npm test` - runs the Vitest suite once (`vitest run`). Run this from *inside* `frontend/`
+  (e.g. `cd frontend && npm test`) rather than via `npm --prefix frontend run test` from the
+  repo root - on Windows, `--prefix` reliably crashes Vitest's worker pool for reasons that
+  aren't fully understood; a plain `cd` avoids it.
+
+## Testing
+
+Uses [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/react)
++ jsdom. Test files sit next to the code they cover (`*.test.ts`/`*.test.tsx`), for example
+`src/api/apiError.test.ts` and `src/pages/AlertRulesPage.test.tsx`. `useAdminApiClient` is mocked
+in screen tests so they exercise a page's own query/mutation wiring without a real backend.
+
+`vite.config.ts`'s `test` block sets `environment: 'jsdom'`, `globals: true` (required so
+`@testing-library/react`'s automatic per-test DOM cleanup can register itself via a global
+`afterEach`), and `pool: 'forks'` (the default "threads" pool was unreliable in this sandbox).
+

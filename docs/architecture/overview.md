@@ -9,7 +9,8 @@ active alert rules, and dispatches notifications over the subscribed channels.
 
 ```mermaid
 flowchart LR
-    Admin["Admin (via Admin API for now, UI later)"] -->|manage rules/channels| Api
+    Admin["Admin (browser)"] -->|uses| Frontend["NotifyMe frontend (React/TS admin panel)"]
+    Frontend -->|typed HTTP, X-Api-Key header| Api
     Api["NotifyMe.Api"] --> App["NotifyMe.Application"]
     App --> Dom["NotifyMe.Domain"]
     App --> Infra["NotifyMe.Infrastructure"]
@@ -18,6 +19,13 @@ flowchart LR
     Infra --> SMTP["SMTP / MailHog"]
     Source["Simulated event source"] --> Infra
 ```
+
+The frontend (`frontend/`, see [ADR-0009](../../ai/decisions/adr/0009-frontend-stack.md)) is a
+separate Vite/React/TypeScript app, not part of the .NET solution or its dependency graph. It
+talks to `NotifyMe.Api` purely over HTTP, using a client generated from the Api's own OpenAPI
+document (`openapi-typescript`/`openapi-fetch`) so its view of the contract can't silently drift.
+It has no direct access to `Domain`/`Application`/`Infrastructure` and is not itself deployed as
+part of the backend.
 
 ## Component / layering view
 
@@ -71,3 +79,5 @@ interfaces.
   a new one.
 - [`data-model.md`](data-model.md) - entities and their relationships.
 - [`../api/admin-api.md`](../api/admin-api.md) - the Admin API contract.
+- [`../../frontend/README.md`](../../frontend/README.md) - the admin frontend's stack, local dev,
+  and test setup.

@@ -54,14 +54,15 @@ background worker (Phase 09) automates event ingestion end-to-end; Serilog loggi
 endpoint, and hardened error handling round out the cross-cutting concerns (Phase 10); and the
 test suite (Phase 11) runs against ephemeral Testcontainers-backed Postgres, WireMock-backed
 Slack, and MailHog-backed Email, with 110+ tests passing and CI (`.github/workflows/ci.yml`)
-running restore/build/test on every push and pull request. See
+running restore/build/test on every push and pull request, alongside a separate frontend job
+(`npm ci`/`npm run build`/`npm test`, see Phase 15). See
 [`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md) for the phased plan and detailed
 status, and [`ai/decisions/adr/`](ai/decisions/adr/) for the key decisions made along the way.
 
 The original brief is preserved at [`task-04-feature-design-and-build.docx`](task-04-feature-design-and-build.docx).
 
 The frontend (a React/TypeScript admin panel, kept deliberately simple and technical rather than
-visual) is functional: Phase 13 (foundation: scaffolding, typed API client, auth, routing shell)
-and Phase 14 (Alert Rules/Channels/Subscriptions/Notifications screens, manual event trigger) are
-both done; frontend testing/CI/docs (Phase 15) is still to come. See ADR-0009 and Phases 13-15 in
-[`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md).
+visual) is done: Phase 13 (foundation: scaffolding, typed API client, auth, routing shell),
+Phase 14 (Alert Rules/Channels/Subscriptions/Notifications screens, manual event trigger), and
+Phase 15 (Vitest/React Testing Library suite, CI job, docs) are all complete. See ADR-0009 and
+Phases 13-15 in [`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md).

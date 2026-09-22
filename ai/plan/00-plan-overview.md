@@ -24,7 +24,7 @@ it is now scoped as Phases 13-15 (see ADR-0009).
 - [ ] [Phase 12 - CI & repo polish](phase-12-ci-and-repo-polish.md)
 - [x] [Phase 13 - Frontend foundation & API integration](phase-13-frontend-foundation.md)
 - [x] [Phase 14 - Frontend admin screens](phase-14-frontend-admin-screens.md)
-- [ ] [Phase 15 - Frontend testing, CI, and docs](phase-15-frontend-testing-and-docs.md)
+- [x] [Phase 15 - Frontend testing, CI, and docs](phase-15-frontend-testing-and-docs.md)
 
 ## Sequencing notes
 
@@ -76,4 +76,12 @@ where the API supports it, a manual trigger-simulated-event action, and TanStack
 invalidation - verified end-to-end through the actual UI, including cleaning the test data back
 out. This also surfaced a real Admin API gap: neither `UpdateAlertRuleRequest` nor
 `UpdateChannelConfigRequest` support changing `isEnabled` after creation, so the edit forms only
-expose that field at creation time. Phase 15 (frontend testing/CI/docs) is not started yet.
+expose that field at creation time. Phase 15 is done: a Vitest + React Testing Library suite
+covers the API client (`X-Api-Key` header attachment, 401 handling), `ProblemDetails`/`ApiError`
+parsing, and the Alert Rules screen's query/filter/create wiring (mocking `useAdminApiClient`, no
+real backend needed); `.github/workflows/ci.yml` gained a second `frontend` job
+(`npm ci`/`npm run build`/`npm test`) alongside the existing backend job; and the root `README.md`,
+`docs/runbook.md`, `docs/architecture/overview.md`, and `frontend/README.md` were updated to
+describe the frontend as done rather than deferred. This also surfaced a Windows-specific Vitest
+quirk (worker-pool crash when invoked via `npm --prefix <dir> run test` instead of a plain `cd`
+first), documented in `frontend/README.md` and `docs/runbook.md` so CI/local runs avoid it.

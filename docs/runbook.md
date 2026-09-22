@@ -58,3 +58,8 @@ Open `http://localhost:5173`, enter the `Admin:ApiKey` value configured on the b
 the UI. The API's `Cors:FrontendOrigin` setting (`appsettings.json`, defaults to
 `http://localhost:5173`) must match wherever the frontend dev server actually runs.
 
+Run its test suite with `cd frontend && npm test` (Vitest + React Testing Library; see
+`frontend/README.md#testing`). Run it from inside `frontend/`, not via `npm --prefix frontend
+run test` from the repo root - `--prefix` triggers a Vitest worker-pool crash on Windows.
+
+
