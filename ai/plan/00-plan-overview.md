@@ -17,7 +17,7 @@ API contract (end of Phase 8) is stable.
 - [x] [Phase 05 - Infrastructure: persistence](phase-05-infrastructure-persistence.md)
 - [x] [Phase 06 - Infrastructure: event ingestion (simulated, visible cut)](phase-06-infrastructure-event-ingestion.md)
 - [x] [Phase 07 - Infrastructure: notification channels](phase-07-infrastructure-notification-channels.md)
-- [ ] [Phase 08 - API layer](phase-08-api-layer.md)
+- [x] [Phase 08 - API layer](phase-08-api-layer.md)
 - [ ] [Phase 09 - Background workers](phase-09-background-workers.md)
 - [ ] [Phase 10 - Cross-cutting concerns](phase-10-cross-cutting-concerns.md)
 - [ ] [Phase 11 - Testing hardening](phase-11-testing-hardening.md)
@@ -31,9 +31,11 @@ they implement) but not on each other, so they can be worked in either order or 
 
 ## Current status
 
-Phases 00-07 done. Domain and Application layers are implemented and unit tested; Infrastructure
-now has real (EF Core/PostgreSQL) repositories, a deterministic `SimulatedEventSource`, and real
+Phases 00-08 done. Domain and Application layers are implemented and unit tested; Infrastructure
+has real (EF Core/PostgreSQL) repositories, a deterministic `SimulatedEventSource`, and real
 Slack (webhook)/Email (SMTP via MailKit) notification channels, both verified end-to-end locally
-(WireMock.Net for Slack, MailHog for Email) - 94 tests passing total across unit and integration
-suites. Phase 08 (API layer) is next, which is also where these pieces first get composed
-together via DI.
+(WireMock.Net for Slack, MailHog for Email). The Admin API (Phase 08) now composes all of this via
+DI: minimal-API CRUD for AlertRules/Channels/Subscriptions, read-only Notification history, a
+manual trigger-simulated-event endpoint, API-key auth (`IEndpointFilter`), `ProblemDetails` error
+mapping (`IExceptionHandler`), and OpenAPI generation - 102 tests passing total across unit and
+integration suites. Phase 09 (Background workers) is next.

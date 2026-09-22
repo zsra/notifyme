@@ -1,7 +1,6 @@
-# Admin API (draft contract)
+# Admin API
 
-Status: draft, written before any code exists (Phase 01). Will be corrected against the actual
-implementation at the end of Phase 08.
+Status: implemented in Phase 08. This reflects the actual API as built.
 
 ## Auth
 
@@ -34,14 +33,19 @@ configuration/user-secrets; requests without a valid key get `401 Unauthorized`.
 
 ### Notifications (read-only history)
 
-- `GET /api/admin/notifications` - filterable by `status`, `alertRuleId`, date range.
+- `GET /api/admin/notifications` - filterable by `status`, `alertRuleId`, `sentFrom`, `sentTo`
+  (all optional query parameters). Note: `sentFrom`/`sentTo` only match notifications that have a
+  non-null `SentAt`, since `Notification` has no separate "created at" timestamp.
 - `GET /api/admin/notifications/{id}`
 
 ### Demo/testing helper
 
 - `POST /api/admin/events/trigger-simulated` - forces the `SimulatedEventSource` to produce and
   ingest one event immediately, for demoing the pipeline without waiting on the polling
-  interval. Optionally accepts an `eventCategory` to force a specific category.
+  interval. Does **not** accept a parameter to force a specific `eventCategory`: the
+  `IEventSource` abstraction has no notion of "fetch only this category", and adding one just for
+  this demo endpoint would leak a simulator-specific concern into the Domain abstraction (see
+  [docs/architecture/event-ingestion.md](../architecture/event-ingestion.md)).
 
 ## Error format
 
@@ -57,8 +61,16 @@ Errors use RFC 7807 `ProblemDetails` with a consistent shape:
 }
 ```
 
+## OpenAPI / Swagger
+
+The API exposes an OpenAPI document via `AddOpenApi()`/`MapOpenApi()` (development environment
+only), following the default ASP.NET Core minimal-API template pattern.
+
 ## Notes
 
 DTOs deliberately mirror but do not reuse domain entities directly (avoid leaking persistence
-concerns through the API). Exact DTO field names will be finalized in Phase 08 alongside the
-implementation.
+concerns through the API): `AlertRuleDto`, `ChannelConfigDto`, `SubscriptionDto`, `NotificationDto`.
+Auth is implemented as an `IEndpointFilter` (`ApiKeyEndpointFilter`) applied to the
+`/api/admin` route group, not ASP.NET Core authentication middleware; it fails closed (401) if the
+server has no `Admin:ApiKey` configured. Errors are mapped via an `IExceptionHandler`
+(`NotifyMeExceptionHandler`).

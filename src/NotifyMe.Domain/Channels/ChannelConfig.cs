@@ -45,4 +45,27 @@ public sealed class ChannelConfig : Entity
     public void Enable() => IsEnabled = true;
 
     public void Disable() => IsEnabled = false;
+
+    /// <summary>
+    /// Replaces the editable details of this channel (type, target). Mirrors
+    /// <see cref="Alerts.AlertRule.UpdateDetails"/>: added for the Phase 08 Admin API's update
+    /// endpoint, which edits an existing channel without discarding its identity/`IsEnabled`
+    /// state.
+    /// </summary>
+    public void UpdateDetails(string channelType, string target)
+    {
+        if (string.IsNullOrWhiteSpace(channelType))
+        {
+            throw new ArgumentException("Channel type is required.", nameof(channelType));
+        }
+
+        if (string.IsNullOrWhiteSpace(target))
+        {
+            throw new ArgumentException(
+                "Channel target (e.g. a webhook URL or an email address) is required.", nameof(target));
+        }
+
+        ChannelType = channelType.Trim().ToLowerInvariant();
+        Target = target.Trim();
+    }
 }
