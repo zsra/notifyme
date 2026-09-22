@@ -290,3 +290,36 @@ implementation to be identified explicitly.
 **Outcome**: Extracted the brief's plain text from the `.docx` and produced
 `docs/verification/BriefComplianceReport.md`, a point-by-point comparison covering both product
 requirements and the brief's process/submission requirements, surfacing several concrete gaps.
+
+## End-user self-service (Phase 16)
+
+**Prompt**: Proposed and confirmed adding end-user self-service on top of the existing
+Admin-only system: account registration/login and user-scoped alert rules, channels, and
+subscriptions, kept as an additive capability rather than replacing the Admin API.
+
+**Outcome**: Wrote ADR-0010 and `ai/plan/phase-16-user-self-service.md`, then implemented Phase
+16 end to end across all four backend layers (a `User` entity, JWT bearer auth separate from the
+Admin API key, a nullable `OwnerUserId` on `AlertRule`/`ChannelConfig`/`Subscription` reusing the
+existing tables and use cases, new `/api/auth/*` and `/api/me/*` endpoints), with the full
+backend test suite passing.
+
+---
+
+**Prompt**: Confirmed proceeding with the frontend half of Phase 16: login/register pages and a
+consolidated page for managing one's own alert rules, channels, and subscriptions, plus updating
+the docs to describe the new surface.
+
+**Outcome**: Added `/login`, `/register`, and a consolidated `/my` page to the frontend, backed
+by a second, independent JWT-based auth flow alongside the existing Admin API key flow; updated
+`docs/architecture/overview.md`, `docs/architecture/data-model.md`, `docs/runbook.md`, the root
+`README.md`, and `frontend/README.md` to describe the self-service surface; marked Phase 16
+complete in the plan overview. Frontend build, lint, and test suite all passing.
+
+---
+
+**Prompt**: Asked for the site's default landing page to change: visiting the app at
+`http://localhost:5173/` should land on the login page rather than the Admin panel.
+
+**Outcome**: Moved the Admin panel's routes from `/` to `/admin` (updating its nav links to
+match) and made `/` redirect to `/login`, so self-service is now the default landing experience
+while the Admin panel remains reachable at `/admin`.
