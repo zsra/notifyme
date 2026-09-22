@@ -19,13 +19,14 @@ public sealed class ListAlertRulesUseCase
     }
 
     public async Task<IReadOnlyList<AlertRuleDto>> ExecuteAsync(
-        EventCategory? category, bool? isEnabled, CancellationToken cancellationToken)
+        EventCategory? category, bool? isEnabled, CancellationToken cancellationToken, Guid? ownerUserId = null)
     {
         var alertRules = await _alertRuleRepository.ListAsync(cancellationToken);
 
         return alertRules
             .Where(rule => category is null || rule.Category == category)
             .Where(rule => isEnabled is null || rule.IsEnabled == isEnabled)
+            .Where(rule => ownerUserId is null || rule.OwnerUserId == ownerUserId)
             .Select(AlertRuleDto.FromEntity)
             .ToList();
     }

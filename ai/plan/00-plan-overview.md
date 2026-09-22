@@ -25,6 +25,7 @@ it is now scoped as Phases 13-15 (see ADR-0009).
 - [x] [Phase 13 - Frontend foundation & API integration](phase-13-frontend-foundation.md)
 - [x] [Phase 14 - Frontend admin screens](phase-14-frontend-admin-screens.md)
 - [x] [Phase 15 - Frontend testing, CI, and docs](phase-15-frontend-testing-and-docs.md)
+- [ ] [Phase 16 - End-user self-service (accounts + user-scoped alerts)](phase-16-user-self-service.md)
 
 ## Sequencing notes
 

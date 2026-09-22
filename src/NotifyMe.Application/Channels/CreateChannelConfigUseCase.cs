@@ -16,11 +16,13 @@ public sealed class CreateChannelConfigUseCase
         _validator = validator;
     }
 
-    public async Task<ChannelConfigDto> ExecuteAsync(CreateChannelConfigRequest request, CancellationToken cancellationToken)
+    public async Task<ChannelConfigDto> ExecuteAsync(
+        CreateChannelConfigRequest request, CancellationToken cancellationToken, Guid? ownerUserId = null)
     {
         await _validator.ValidateAndThrowAsync(request, cancellationToken);
 
-        var channelConfig = ChannelConfig.Create(Guid.NewGuid(), request.ChannelType, request.Target, request.IsEnabled);
+        var channelConfig = ChannelConfig.Create(
+            Guid.NewGuid(), request.ChannelType, request.Target, request.IsEnabled, ownerUserId);
         await _channelConfigRepository.AddAsync(channelConfig, cancellationToken);
 
         return ChannelConfigDto.FromEntity(channelConfig);

@@ -46,6 +46,20 @@ public sealed class NotifyMeExceptionHandler : IExceptionHandler
                 Status = StatusCodes.Status400BadRequest,
                 Detail = argument.Message,
             },
+            ConflictException conflict => new ProblemDetails
+            {
+                Type = "https://example.com/errors/conflict",
+                Title = "Conflict",
+                Status = StatusCodes.Status409Conflict,
+                Detail = conflict.Message,
+            },
+            AuthenticationFailedException authFailed => new ProblemDetails
+            {
+                Type = "https://example.com/errors/authentication-failed",
+                Title = "Authentication failed",
+                Status = StatusCodes.Status401Unauthorized,
+                Detail = authFailed.Message,
+            },
             _ => new ProblemDetails
             {
                 Type = "https://example.com/errors/unexpected",

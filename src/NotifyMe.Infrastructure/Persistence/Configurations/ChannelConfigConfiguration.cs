@@ -20,5 +20,8 @@ public sealed class ChannelConfigConfiguration : IEntityTypeConfiguration<Channe
             .HasMaxLength(500);
 
         builder.Property(channel => channel.IsEnabled).IsRequired();
+
+        builder.Property(channel => channel.OwnerUserId);
+        builder.HasIndex(channel => channel.OwnerUserId);
     }
 }

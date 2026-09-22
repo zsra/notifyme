@@ -21,13 +21,14 @@ public sealed class CreateAlertRuleUseCase
         _validator = validator;
     }
 
-    public async Task<AlertRuleDto> ExecuteAsync(CreateAlertRuleRequest request, CancellationToken cancellationToken)
+    public async Task<AlertRuleDto> ExecuteAsync(
+        CreateAlertRuleRequest request, CancellationToken cancellationToken, Guid? ownerUserId = null)
     {
         await _validator.ValidateAndThrowAsync(request, cancellationToken);
 
         var criteria = MatchCriteria.Create(request.Keywords, request.MinimumSeverity);
         var alertRule = AlertRule.Create(
-            Guid.NewGuid(), request.Name, request.Category, criteria, DateTimeOffset.UtcNow, request.IsEnabled);
+            Guid.NewGuid(), request.Name, request.Category, criteria, DateTimeOffset.UtcNow, request.IsEnabled, ownerUserId);
 
         await _alertRuleRepository.AddAsync(alertRule, cancellationToken);
 

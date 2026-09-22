@@ -17,13 +17,14 @@ public sealed class ListChannelConfigsUseCase
     }
 
     public async Task<IReadOnlyList<ChannelConfigDto>> ExecuteAsync(
-        string? channelType, bool? isEnabled, CancellationToken cancellationToken)
+        string? channelType, bool? isEnabled, CancellationToken cancellationToken, Guid? ownerUserId = null)
     {
         var channelConfigs = await _channelConfigRepository.ListAsync(cancellationToken);
 
         return channelConfigs
             .Where(channel => channelType is null || string.Equals(channel.ChannelType, channelType, StringComparison.OrdinalIgnoreCase))
             .Where(channel => isEnabled is null || channel.IsEnabled == isEnabled)
+            .Where(channel => ownerUserId is null || channel.OwnerUserId == ownerUserId)
             .Select(ChannelConfigDto.FromEntity)
             .ToList();
     }

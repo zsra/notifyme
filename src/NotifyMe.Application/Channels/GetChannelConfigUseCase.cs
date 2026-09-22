@@ -12,10 +12,15 @@ public sealed class GetChannelConfigUseCase
         _channelConfigRepository = channelConfigRepository;
     }
 
-    public async Task<ChannelConfigDto> ExecuteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ChannelConfigDto> ExecuteAsync(Guid id, CancellationToken cancellationToken, Guid? ownerUserId = null)
     {
         var channelConfig = await _channelConfigRepository.GetByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException($"Channel '{id}' was not found.");
+
+        if (ownerUserId is not null && channelConfig.OwnerUserId != ownerUserId)
+        {
+            throw new NotFoundException($"Channel '{id}' was not found.");
+        }
 
         return ChannelConfigDto.FromEntity(channelConfig);
     }

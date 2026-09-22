@@ -29,7 +29,8 @@ public sealed class ManageSubscriptionUseCase
         _validator = validator;
     }
 
-    public async Task<SubscriptionDto> SubscribeAsync(CreateSubscriptionRequest request, CancellationToken cancellationToken)
+    public async Task<SubscriptionDto> SubscribeAsync(
+        CreateSubscriptionRequest request, CancellationToken cancellationToken, Guid? ownerUserId = null)
     {
         await _validator.ValidateAndThrowAsync(request, cancellationToken);
 
@@ -39,16 +40,26 @@ public sealed class ManageSubscriptionUseCase
         var channelConfig = await _channelConfigRepository.GetByIdAsync(request.ChannelConfigId, cancellationToken)
             ?? throw new NotFoundException($"Channel '{request.ChannelConfigId}' was not found.");
 
-        var subscription = Subscription.Create(Guid.NewGuid(), alertRule.Id, channelConfig.Id);
+        if (ownerUserId is not null && (alertRule.OwnerUserId != ownerUserId || channelConfig.OwnerUserId != ownerUserId))
+        {
+            throw new NotFoundException($"Alert rule '{request.AlertRuleId}' or channel '{request.ChannelConfigId}' was not found.");
+        }
+
+        var subscription = Subscription.Create(Guid.NewGuid(), alertRule.Id, channelConfig.Id, ownerUserId);
         await _subscriptionRepository.AddAsync(subscription, cancellationToken);
 
         return SubscriptionDto.FromEntity(subscription);
     }
 
-    public async Task UnsubscribeAsync(Guid subscriptionId, CancellationToken cancellationToken)
+    public async Task UnsubscribeAsync(Guid subscriptionId, CancellationToken cancellationToken, Guid? ownerUserId = null)
     {
         var subscription = await _subscriptionRepository.GetByIdAsync(subscriptionId, cancellationToken)
             ?? throw new NotFoundException($"Subscription '{subscriptionId}' was not found.");
+
+        if (ownerUserId is not null && subscription.OwnerUserId != ownerUserId)
+        {
+            throw new NotFoundException($"Subscription '{subscriptionId}' was not found.");
+        }
 
         await _subscriptionRepository.DeleteAsync(subscription, cancellationToken);
     }

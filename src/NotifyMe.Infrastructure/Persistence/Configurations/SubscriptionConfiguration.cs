@@ -15,5 +15,8 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
         builder.Property(subscription => subscription.ChannelConfigId).IsRequired();
 
         builder.HasIndex(subscription => subscription.AlertRuleId);
+
+        builder.Property(subscription => subscription.OwnerUserId);
+        builder.HasIndex(subscription => subscription.OwnerUserId);
     }
 }

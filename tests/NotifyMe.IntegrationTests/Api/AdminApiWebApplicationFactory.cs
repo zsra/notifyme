@@ -37,6 +37,7 @@ public sealed class AdminApiWebApplicationFactory : WebApplicationFactory<Progra
                 ["ConnectionStrings:Postgres"] = _postgresFixture.ConnectionString,
                 ["Admin:ApiKey"] = ApiKey,
                 ["EventIngestion:Simulated:PollingInterval"] = "1.00:00:00",
+                ["Jwt:SigningKey"] = "integration-test-signing-key-at-least-32-bytes-long",
             });
         });
     }

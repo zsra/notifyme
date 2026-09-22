@@ -26,6 +26,9 @@ public sealed class AlertRuleConfiguration : IEntityTypeConfiguration<AlertRule>
         builder.Property(rule => rule.IsEnabled).IsRequired();
         builder.Property(rule => rule.CreatedAt).IsRequired();
 
+        builder.Property(rule => rule.OwnerUserId);
+        builder.HasIndex(rule => rule.OwnerUserId);
+
         builder.OwnsOne(rule => rule.Criteria, criteria =>
         {
             criteria.Property(c => c.MinimumSeverity)

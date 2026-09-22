@@ -1,13 +1,19 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using NotifyMe.Api.Authentication;
 using NotifyMe.Api.Endpoints;
 using NotifyMe.Api.ErrorHandling;
 using NotifyMe.Api.Workers;
 using NotifyMe.Application;
+using NotifyMe.Application.Abstractions;
 using NotifyMe.Infrastructure.EventSources;
 using NotifyMe.Infrastructure.EventSources.Simulated;
 using NotifyMe.Infrastructure.NotificationChannels;
 using NotifyMe.Infrastructure.Persistence;
+using NotifyMe.Infrastructure.Security;
 using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +37,7 @@ builder.Services.AddOpenApi();
 // `builder.Build()` - are picked up correctly. See the doc comment on
 // `PersistenceServiceCollectionExtensions.AddNotifyMePersistence` for the full explanation.
 builder.Services.AddNotifyMePersistence(builder.Configuration);
+builder.Services.AddNotifyMeSecurity();
 builder.Services.AddSimulatedEventSource(builder.Configuration);
 builder.Services.AddNotifyMeNotificationChannels(builder.Configuration);
 builder.Services.AddNotifyMeApplication(builder.Configuration);
@@ -39,6 +46,38 @@ builder.Services.AddHostedService<EventIngestionWorker>();
 builder.Services.AddScoped<ApiKeyEndpointFilter>();
 builder.Services.AddExceptionHandler<NotifyMeExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+// End-user self-service auth (Phase 16, ADR-0010): a JWT bearer scheme entirely separate from
+// the Admin API key above. `Jwt:SigningKey` comes from `dotnet user-secrets` locally / an
+// environment variable in CI-deployment, never committed, exactly like `Admin:ApiKey`.
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+// `TokenValidationParameters` is built from `IOptions<JwtOptions>` resolved via DI *after*
+// `builder.Build()` (through `AddOptions<JwtBearerOptions>().Configure<...>(...)`) rather than by
+// reading `builder.Configuration` directly here. `WebApplicationFactory`-based integration tests
+// only merge their `ConfigureAppConfiguration` overrides into the final configuration during
+// `builder.Build()`, so capturing `Jwt:SigningKey` before that point would silently use an empty
+// key (and mint validation parameters that can never match tokens signed with the real key).
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer();
+builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtOptions>>((bearerOptions, jwtOptionsAccessor) =>
+    {
+        var jwtOptions = jwtOptionsAccessor.Value;
+        bearerOptions.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwtOptions.Audience,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                string.IsNullOrEmpty(jwtOptions.SigningKey) ? Guid.NewGuid().ToString("N") : jwtOptions.SigningKey)),
+        };
+    });
+builder.Services.AddAuthorization();
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<NotifyMeDbContext>("postgres");
@@ -65,8 +104,12 @@ app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseCors(FrontendCorsPolicy);
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapHealthChecks("/health");
+
+app.MapAuthEndpoints();
 
 var adminApi = app.MapGroup("/api/admin").AddEndpointFilter<ApiKeyEndpointFilter>();
 adminApi.MapAlertRulesEndpoints();
@@ -74,6 +117,11 @@ adminApi.MapChannelsEndpoints();
 adminApi.MapSubscriptionsEndpoints();
 adminApi.MapNotificationsEndpoints();
 adminApi.MapEventsEndpoints();
+
+var myApi = app.MapGroup("/api/me").RequireAuthorization();
+myApi.MapMyAlertRulesEndpoints();
+myApi.MapMyChannelsEndpoints();
+myApi.MapMySubscriptionsEndpoints();
 
 app.Run();
 

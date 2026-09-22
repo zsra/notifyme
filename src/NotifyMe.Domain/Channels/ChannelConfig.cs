@@ -14,19 +14,27 @@ public sealed class ChannelConfig : Entity
     public string Target { get; private set; } = string.Empty;
     public bool IsEnabled { get; private set; }
 
+    /// <summary>
+    /// <c>null</c> means admin/global-owned (unchanged since Phase 08). A non-null value is the
+    /// <see cref="Users.User"/> who owns this channel via the Phase 16 self-service `/api/me`
+    /// surface; see ADR-0010.
+    /// </summary>
+    public Guid? OwnerUserId { get; private set; }
+
     private ChannelConfig()
     {
     }
 
-    private ChannelConfig(Guid id, string channelType, string target, bool isEnabled)
+    private ChannelConfig(Guid id, string channelType, string target, bool isEnabled, Guid? ownerUserId)
         : base(id)
     {
         ChannelType = channelType;
         Target = target;
         IsEnabled = isEnabled;
+        OwnerUserId = ownerUserId;
     }
 
-    public static ChannelConfig Create(Guid id, string channelType, string target, bool isEnabled = true)
+    public static ChannelConfig Create(Guid id, string channelType, string target, bool isEnabled = true, Guid? ownerUserId = null)
     {
         if (string.IsNullOrWhiteSpace(channelType))
         {
@@ -39,7 +47,7 @@ public sealed class ChannelConfig : Entity
                 "Channel target (e.g. a webhook URL or an email address) is required.", nameof(target));
         }
 
-        return new ChannelConfig(id, channelType.Trim().ToLowerInvariant(), target.Trim(), isEnabled);
+        return new ChannelConfig(id, channelType.Trim().ToLowerInvariant(), target.Trim(), isEnabled, ownerUserId);
     }
 
     public void Enable() => IsEnabled = true;

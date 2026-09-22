@@ -28,6 +28,7 @@ public static class PersistenceServiceCollectionExtensions
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IChannelConfigRepository, ChannelConfigRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }

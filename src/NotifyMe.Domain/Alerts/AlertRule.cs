@@ -16,11 +16,18 @@ public sealed class AlertRule : Entity
     public bool IsEnabled { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
+    /// <summary>
+    /// <c>null</c> means admin/global-owned (every rule created through the Admin API, unchanged
+    /// since Phase 08). A non-null value is the <see cref="Users.User"/> who owns this rule via
+    /// the Phase 16 self-service `/api/me` surface; see ADR-0010.
+    /// </summary>
+    public Guid? OwnerUserId { get; private set; }
+
     private AlertRule()
     {
     }
 
-    private AlertRule(Guid id, string name, EventCategory category, MatchCriteria criteria, bool isEnabled, DateTimeOffset createdAt)
+    private AlertRule(Guid id, string name, EventCategory category, MatchCriteria criteria, bool isEnabled, DateTimeOffset createdAt, Guid? ownerUserId)
         : base(id)
     {
         Name = name;
@@ -28,6 +35,7 @@ public sealed class AlertRule : Entity
         Criteria = criteria;
         IsEnabled = isEnabled;
         CreatedAt = createdAt;
+        OwnerUserId = ownerUserId;
     }
 
     public static AlertRule Create(
@@ -36,12 +44,13 @@ public sealed class AlertRule : Entity
         EventCategory category,
         MatchCriteria criteria,
         DateTimeOffset createdAt,
-        bool isEnabled = true)
+        bool isEnabled = true,
+        Guid? ownerUserId = null)
     {
         EnsureValid(name, category);
         ArgumentNullException.ThrowIfNull(criteria);
 
-        return new AlertRule(id, name.Trim(), category, criteria, isEnabled, createdAt);
+        return new AlertRule(id, name.Trim(), category, criteria, isEnabled, createdAt, ownerUserId);
     }
 
     public void Enable() => IsEnabled = true;

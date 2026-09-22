@@ -9,6 +9,7 @@ using NotifyMe.Application.Common.Resilience;
 using NotifyMe.Application.Events;
 using NotifyMe.Application.Notifications;
 using NotifyMe.Application.Subscriptions;
+using NotifyMe.Application.Users;
 using NotifyMe.Domain.Abstractions;
 using Polly;
 
@@ -72,6 +73,11 @@ public static class ApplicationServiceCollectionExtensions
 
         services.AddScoped<GetNotificationUseCase>();
         services.AddScoped<ListNotificationsUseCase>();
+
+        services.AddScoped<IValidator<RegisterUserRequest>, RegisterUserRequestValidator>();
+        services.AddScoped<RegisterUserUseCase>();
+        services.AddScoped<IValidator<LoginUserRequest>, LoginUserRequestValidator>();
+        services.AddScoped<LoginUserUseCase>();
 
         return services;
     }

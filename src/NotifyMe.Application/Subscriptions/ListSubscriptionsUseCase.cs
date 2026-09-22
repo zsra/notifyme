@@ -18,7 +18,7 @@ public sealed class ListSubscriptionsUseCase
     }
 
     public async Task<IReadOnlyList<SubscriptionDto>> ExecuteAsync(
-        Guid? alertRuleId, Guid? channelConfigId, CancellationToken cancellationToken)
+        Guid? alertRuleId, Guid? channelConfigId, CancellationToken cancellationToken, Guid? ownerUserId = null)
     {
         var subscriptions = alertRuleId is { } id
             ? await _subscriptionRepository.ListByAlertRuleIdAsync(id, cancellationToken)
@@ -26,6 +26,7 @@ public sealed class ListSubscriptionsUseCase
 
         return subscriptions
             .Where(subscription => channelConfigId is null || subscription.ChannelConfigId == channelConfigId)
+            .Where(subscription => ownerUserId is null || subscription.OwnerUserId == ownerUserId)
             .Select(SubscriptionDto.FromEntity)
             .ToList();
     }

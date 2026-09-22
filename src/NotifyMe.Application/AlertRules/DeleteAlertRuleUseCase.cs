@@ -12,10 +12,15 @@ public sealed class DeleteAlertRuleUseCase
         _alertRuleRepository = alertRuleRepository;
     }
 
-    public async Task ExecuteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(Guid id, CancellationToken cancellationToken, Guid? ownerUserId = null)
     {
         var alertRule = await _alertRuleRepository.GetByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException($"Alert rule '{id}' was not found.");
+
+        if (ownerUserId is not null && alertRule.OwnerUserId != ownerUserId)
+        {
+            throw new NotFoundException($"Alert rule '{id}' was not found.");
+        }
 
         await _alertRuleRepository.DeleteAsync(alertRule, cancellationToken);
     }
