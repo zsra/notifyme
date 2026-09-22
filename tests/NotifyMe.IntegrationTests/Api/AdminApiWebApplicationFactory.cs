@@ -21,11 +21,11 @@ public sealed class AdminApiWebApplicationFactory : WebApplicationFactory<Progra
 {
     public const string ApiKey = "integration-test-admin-key";
 
-    private readonly string _connectionString;
+    private readonly PostgresContainerFixture _postgresFixture;
 
     public AdminApiWebApplicationFactory(PostgresContainerFixture postgresFixture)
     {
-        _connectionString = postgresFixture.ConnectionString;
+        _postgresFixture = postgresFixture;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -34,7 +34,7 @@ public sealed class AdminApiWebApplicationFactory : WebApplicationFactory<Progra
         {
             configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ConnectionStrings:Postgres"] = _connectionString,
+                ["ConnectionStrings:Postgres"] = _postgresFixture.ConnectionString,
                 ["Admin:ApiKey"] = ApiKey,
                 ["EventIngestion:Simulated:PollingInterval"] = "1.00:00:00",
             });

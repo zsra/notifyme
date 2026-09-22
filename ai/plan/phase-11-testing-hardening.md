@@ -69,5 +69,25 @@ Phase 09 (pipeline must be functionally complete).
 - Full solution `dotnet test`: **110/110 passing** (105 at the end of Phase 10, plus 2 new Slack
   webhook-failure tests and 3 new `NotifyMeExceptionHandlerTests` added this phase).
 
+### Post-Phase 12 bug fix: flaky connection string in `AdminApiWebApplicationFactory`
+A real CI run (after the Phase 12 NuGet Audit remediation) intermittently failed 6 of the
+`WebApplicationFactory`-based API tests with `Npgsql.NpgsqlException: Failed to connect to
+127.0.0.1:5432` / connection refused, even though the shared `PostgresContainerFixture`'s
+container reported itself ready moments earlier. Root cause: `AdminApiWebApplicationFactory`'s
+constructor captured `postgresFixture.ConnectionString` into a field immediately, but that
+property is only populated inside `PostgresContainerFixture.InitializeAsync()` (an
+`IAsyncLifetime` callback awaited by xUnit before tests run, not necessarily before every
+same-collection fixture is *constructed*). If the class fixture's constructor ran before that
+completed, it captured the property's default empty-string value, and an empty Npgsql connection
+string silently falls back to Npgsql's own defaults (`localhost`/`5432`) instead of throwing -
+which is coincidentally why this passed locally (nothing was listening on `5432` there either
+most of the time, but occasionally a stray local Postgres/Testcontainers instance masked it) yet
+failed deterministically-ish in CI. Fixed by storing the `PostgresContainerFixture` reference
+itself and reading `.ConnectionString` lazily inside the `ConfigureAppConfiguration` callback
+(which only runs when the test host is actually built, always after the fixture is fully
+initialized), removing the race entirely. See
+`tests/NotifyMe.IntegrationTests/Api/AdminApiWebApplicationFactory.cs`. Verified with a full
+local `dotnet test` (110/110 passing).
+
 ## Status
 Done (2026-09-22).
