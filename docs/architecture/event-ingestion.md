@@ -10,21 +10,31 @@ of the system.
 
 ## The abstraction
 
-`IEventSource` is declared in the `Application` layer:
+`IEventSource` is declared in the `Domain` layer, under `Domain/Abstractions`:
 
 ```
 Task<IReadOnlyList<RawEvent>> FetchAsync(CancellationToken ct);
 ```
 
 Nothing in `Domain` or `Application` knows or cares whether events come from a simulator or a
-real feed. `EventIngestionWorker` (in `Api`) depends only on `IEventSource`, resolved via DI.
+real feed. `EventIngestionWorker` (in `Api`, added from Phase 09 onward) depends only on
+`IEventSource`, resolved via DI.
 
 ## The simulated implementation
 
 `SimulatedEventSource` (in `Infrastructure/EventSources/Simulated/`) generates plausible
 `RawEvent`s spanning all three categories (`BreakingNews`, `MarketMovement`, `NaturalDisaster`)
-on a configurable interval, from a configurable content pool, using a seeded RNG so behavior is
-deterministic and testable.
+from a fixed content pool, using a seedable RNG (`SimulatedEventSourceOptions.Seed`) so behavior
+is deterministic and testable when a seed is supplied; left unset, it seeds from the clock like a
+normal `Random`. How many events a single `FetchAsync` call returns, and the polling interval a
+caller should use, are both configurable via the `EventIngestion:Simulated` appsettings section
+(`MinEventsPerFetch`, `MaxEventsPerFetch`, `PollingInterval`) - see
+`src/NotifyMe.Api/appsettings.json`. `SimulatedEventSource` itself only fetches on demand; the
+actual polling loop is the ingestion worker's responsibility (Phase 09).
+
+Registration lives in `Infrastructure/EventSources/EventSourcesServiceCollectionExtensions.cs`
+(`AddSimulatedEventSource`), called from the `Api` composition root (from Phase 08 onward).
+
 
 ## The extension seam
 
