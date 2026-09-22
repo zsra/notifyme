@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ApiKeyGate } from "./auth/ApiKeyGate";
 import { ApiKeyProvider } from "./auth/ApiKeyContext";
 import { MyAuthGate } from "./auth/MyAuthGate";
@@ -24,6 +24,7 @@ function App() {
         <MyAuthProvider>
           <BrowserRouter>
             <Routes>
+              <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route
@@ -37,7 +38,7 @@ function App() {
                 <Route index element={<MyAlertsPage />} />
               </Route>
               <Route
-                path="/"
+                path="/admin"
                 element={
                   <ApiKeyGate>
                     <Layout />

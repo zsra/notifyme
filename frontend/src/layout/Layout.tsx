@@ -19,19 +19,19 @@ export function Layout() {
       <header style={{ marginBottom: "1rem" }}>
         <h1 style={{ marginBottom: "0.5rem" }}>NotifyMe Admin</h1>
         <nav>
-          <NavLink to="/" end style={navLinkStyle}>
+          <NavLink to="/admin" end style={navLinkStyle}>
             Status
           </NavLink>
-          <NavLink to="/alert-rules" style={navLinkStyle}>
+          <NavLink to="/admin/alert-rules" style={navLinkStyle}>
             Alert Rules
           </NavLink>
-          <NavLink to="/channels" style={navLinkStyle}>
+          <NavLink to="/admin/channels" style={navLinkStyle}>
             Channels
           </NavLink>
-          <NavLink to="/subscriptions" style={navLinkStyle}>
+          <NavLink to="/admin/subscriptions" style={navLinkStyle}>
             Subscriptions
           </NavLink>
-          <NavLink to="/notifications" style={navLinkStyle}>
+          <NavLink to="/admin/notifications" style={navLinkStyle}>
             Notifications
           </NavLink>
           <button type="button" onClick={clearApiKey} style={{ marginLeft: "1rem" }}>
