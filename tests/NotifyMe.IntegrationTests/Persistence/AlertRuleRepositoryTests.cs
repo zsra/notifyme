@@ -10,21 +10,21 @@ namespace NotifyMe.IntegrationTests.Persistence;
 
 /// <summary>
 /// Round-trips an <see cref="AlertRule"/> (including its owned <see cref="MatchCriteria"/> value
-/// object) through <see cref="AlertRuleRepository"/> against a real PostgreSQL instance.
-///
-/// Requires the local docker-compose Postgres service to be running first:
-/// `docker compose up -d postgres`. This is the "small integration test against the
-/// docker-compose Postgres instance" called for by Phase 05; a Testcontainers-based, fully
-/// self-contained equivalent is planned for Phase 11 alongside the rest of the API integration
-/// suite.
+/// object) through <see cref="AlertRuleRepository"/> against a real, ephemeral PostgreSQL
+/// instance provided by <see cref="PostgresContainerFixture"/> (Phase 11's Testcontainers-based
+/// replacement for the earlier fixed local docker-compose Postgres instance).
 /// </summary>
+[Collection(PostgresCollection.Name)]
 public class AlertRuleRepositoryTests : IAsyncLifetime
 {
-    private const string ConnectionString =
-        "Host=localhost;Port=5432;Database=notifyme;Username=notifyme;Password=notifyme_dev_only";
-
+    private readonly PostgresContainerFixture _postgresFixture;
     private NotifyMeDbContext _dbContext = null!;
     private AlertRuleRepository _repository = null!;
+
+    public AlertRuleRepositoryTests(PostgresContainerFixture postgresFixture)
+    {
+        _postgresFixture = postgresFixture;
+    }
 
     public Task InitializeAsync()
     {
@@ -38,8 +38,8 @@ public class AlertRuleRepositoryTests : IAsyncLifetime
         await _dbContext.DisposeAsync();
     }
 
-    private static NotifyMeDbContext CreateDbContext() => new(
-        new DbContextOptionsBuilder<NotifyMeDbContext>().UseNpgsql(ConnectionString).Options);
+    private NotifyMeDbContext CreateDbContext() => new(
+        new DbContextOptionsBuilder<NotifyMeDbContext>().UseNpgsql(_postgresFixture.ConnectionString).Options);
 
     [Fact]
     public async Task AddAsync_ThenGetByIdAsync_RoundTripsAlertRuleAndMatchCriteria()

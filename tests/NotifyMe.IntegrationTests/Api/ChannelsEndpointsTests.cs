@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using NotifyMe.Api.Authentication;
 using NotifyMe.Application.Channels;
+using NotifyMe.IntegrationTests;
 using Xunit;
 
 namespace NotifyMe.IntegrationTests.Api;
@@ -11,6 +12,7 @@ namespace NotifyMe.IntegrationTests.Api;
 /// CRUD round trip for the <c>/api/admin/channels</c> endpoints against the real Api host and a
 /// real Postgres instance (see docs/api/admin-api.md).
 /// </summary>
+[Collection(PostgresCollection.Name)]
 public class ChannelsEndpointsTests : IClassFixture<AdminApiWebApplicationFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };

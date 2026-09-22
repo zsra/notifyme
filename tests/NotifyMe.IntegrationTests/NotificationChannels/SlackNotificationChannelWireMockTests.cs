@@ -54,6 +54,45 @@ public class SlackNotificationChannelWireMockTests : IDisposable
         Assert.Contains("Magnitude 6.1 earthquake", logEntry.RequestMessage.Body);
     }
 
+    [Fact]
+    public async Task SendAsync_WebhookReturnsErrorStatus_ReturnsFailureWithBody()
+    {
+        const string webhookPath = "/services/T000/B000/PLACEHOLDER";
+
+        _server
+            .Given(Request.Create().WithPath(webhookPath).UsingPost())
+            .RespondWith(Response.Create().WithStatusCode(404).WithBody("no_service"));
+
+        var channel = new SlackNotificationChannel(new HttpClient());
+        var context = CreateContext($"{_server.Urls[0]}{webhookPath}");
+
+        var result = await channel.SendAsync(context, CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("404", result.ErrorMessage);
+        Assert.Contains("no_service", result.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task SendAsync_WebhookUnreachable_CatchesHttpRequestExceptionAndReturnsFailure()
+    {
+        // Phase 11 coverage gap: this exercises SlackNotificationChannel's
+        // `catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)`
+        // branch, which was previously untested (0% line coverage). Matters because the Polly
+        // retry pipeline in DispatchNotificationUseCase only retries on a `Failure` *result*, not
+        // on a thrown exception - so it's important that network failures actually get converted
+        // to a Failure result here rather than propagating out uncaught.
+        _server.Stop();
+
+        var channel = new SlackNotificationChannel(new HttpClient());
+        var context = CreateContext($"{_server.Urls[0]}/services/T000/B000/PLACEHOLDER");
+
+        var result = await channel.SendAsync(context, CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("Failed to post to Slack webhook", result.ErrorMessage);
+    }
+
     private static NotificationDispatchContext CreateContext(string webhookUrl)
     {
         var criteria = MatchCriteria.Create(new[] { "earthquake" }, Severity.Medium);

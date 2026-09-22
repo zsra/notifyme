@@ -8,9 +8,9 @@ namespace NotifyMe.IntegrationTests.Api;
 /// <summary>
 /// Spins up the real Api host (including the real Postgres-backed persistence and real
 /// notification channels) via <see cref="WebApplicationFactory{TEntryPoint}"/>, overriding only
-/// the connection string and Admin API key so tests don't depend on `dotnet user-secrets` being
-/// configured locally. Requires the local docker-compose Postgres service to be running first:
-/// `docker compose up -d postgres`.
+/// the connection string (pointed at the ephemeral <see cref="PostgresContainerFixture"/>
+/// container, see <see cref="PostgresCollection"/>) and Admin API key so tests don't depend on
+/// `dotnet user-secrets` or a manually-started local Postgres instance.
 ///
 /// Also stretches the simulated event source's polling interval out to 1 day so the real
 /// `EventIngestionWorker` (Phase 09, runs automatically on host startup) never fires a second,
@@ -21,14 +21,20 @@ public sealed class AdminApiWebApplicationFactory : WebApplicationFactory<Progra
 {
     public const string ApiKey = "integration-test-admin-key";
 
+    private readonly string _connectionString;
+
+    public AdminApiWebApplicationFactory(PostgresContainerFixture postgresFixture)
+    {
+        _connectionString = postgresFixture.ConnectionString;
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureAppConfiguration((_, configBuilder) =>
         {
             configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ConnectionStrings:Postgres"] =
-                    "Host=localhost;Port=5432;Database=notifyme;Username=notifyme;Password=notifyme_dev_only",
+                ["ConnectionStrings:Postgres"] = _connectionString,
                 ["Admin:ApiKey"] = ApiKey,
                 ["EventIngestion:Simulated:PollingInterval"] = "1.00:00:00",
             });

@@ -8,6 +8,7 @@ using NotifyMe.Application.Events;
 using NotifyMe.Application.Notifications;
 using NotifyMe.Domain.Common;
 using NotifyMe.Domain.Events;
+using NotifyMe.IntegrationTests;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -23,6 +24,7 @@ namespace NotifyMe.IntegrationTests.Api;
 /// guaranteed to match at least one of them, keeping the test deterministic despite
 /// `SimulatedEventSource`'s randomness.
 /// </summary>
+[Collection(PostgresCollection.Name)]
 public class TriggerSimulatedEndToEndTests : IClassFixture<AdminApiWebApplicationFactory>, IDisposable
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };

@@ -12,6 +12,8 @@ obj/
 ## Test results / coverage
 TestResults/
 coverage/
+coverage-results/
+coverage-report/
 *.trx
 
 ## Docker

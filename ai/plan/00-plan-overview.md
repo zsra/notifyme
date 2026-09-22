@@ -20,7 +20,7 @@ API contract (end of Phase 8) is stable.
 - [x] [Phase 08 - API layer](phase-08-api-layer.md)
 - [x] [Phase 09 - Background workers](phase-09-background-workers.md)
 - [x] [Phase 10 - Cross-cutting concerns](phase-10-cross-cutting-concerns.md)
-- [ ] [Phase 11 - Testing hardening](phase-11-testing-hardening.md)
+- [x] [Phase 11 - Testing hardening](phase-11-testing-hardening.md)
 - [ ] [Phase 12 - CI & repo polish](phase-12-ci-and-repo-polish.md)
 - [ ] Frontend - deferred, to be planned separately once Phase 08 is stable
 
@@ -31,7 +31,7 @@ they implement) but not on each other, so they can be worked in either order or 
 
 ## Current status
 
-Phases 00-10 done. Domain and Application layers are implemented and unit tested; Infrastructure
+Phases 00-11 done. Domain and Application layers are implemented and unit tested; Infrastructure
 has real (EF Core/PostgreSQL) repositories, a deterministic `SimulatedEventSource`, and real
 Slack (webhook)/Email (SMTP via MailKit) notification channels, both verified end-to-end locally
 (WireMock.Net for Slack, MailHog for Email). The Admin API (Phase 08) composes all of this via DI:
@@ -46,5 +46,10 @@ structured logging (console sink, configured from the `Serilog` appsettings sect
 `/health` endpoint backed by a Postgres dependency check, a `UserSecretsId` enabling local
 secret storage, and a hardened `NotifyMeExceptionHandler` that maps every otherwise-unhandled
 exception to a generic 500 `ProblemDetails` (logged server-side, no internals leaked to
-clients) - 105 tests passing total across unit and integration suites. Phase 11 (Testing
-hardening) is next.
+clients). Phase 11 hardens the test suite: the Admin API and repository integration tests now
+run against an ephemeral `Testcontainers.PostgreSql` container (no more fixed local Postgres
+dependency), the WireMock-based Slack suite gained webhook-failure and webhook-unreachable
+cases, and a coverage review closed real gaps (Slack's network-exception handling,
+`NotifyMeExceptionHandler`'s catch-all 500 path) while confirming the matching logic
+(`AlertMatcher`) and dispatch retry path (`DispatchNotificationUseCase`) are already fully
+covered - 110 tests passing total. Phase 12 (CI & repo polish) is next.

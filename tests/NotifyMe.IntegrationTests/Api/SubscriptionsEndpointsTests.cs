@@ -7,6 +7,7 @@ using NotifyMe.Application.Channels;
 using NotifyMe.Application.Subscriptions;
 using NotifyMe.Domain.Common;
 using NotifyMe.Domain.Events;
+using NotifyMe.IntegrationTests;
 using Xunit;
 
 namespace NotifyMe.IntegrationTests.Api;
@@ -15,6 +16,7 @@ namespace NotifyMe.IntegrationTests.Api;
 /// Create/list/delete round trip for the <c>/api/admin/subscriptions</c> endpoints, which link
 /// an alert rule to a channel (see docs/api/admin-api.md).
 /// </summary>
+[Collection(PostgresCollection.Name)]
 public class SubscriptionsEndpointsTests : IClassFixture<AdminApiWebApplicationFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };

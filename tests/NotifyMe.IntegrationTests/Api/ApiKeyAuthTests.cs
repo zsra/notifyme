@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using NotifyMe.Api.Authentication;
+using NotifyMe.IntegrationTests;
 using Xunit;
 
 namespace NotifyMe.IntegrationTests.Api;
@@ -9,6 +10,7 @@ namespace NotifyMe.IntegrationTests.Api;
 /// Verifies ADR-0006's "requests without a valid API key are rejected" requirement against the
 /// real Api host.
 /// </summary>
+[Collection(PostgresCollection.Name)]
 public class ApiKeyAuthTests : IClassFixture<AdminApiWebApplicationFactory>
 {
     private readonly AdminApiWebApplicationFactory _factory;

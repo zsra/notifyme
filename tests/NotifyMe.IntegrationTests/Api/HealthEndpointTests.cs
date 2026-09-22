@@ -1,4 +1,5 @@
 using System.Net;
+using NotifyMe.IntegrationTests;
 using Xunit;
 
 namespace NotifyMe.IntegrationTests.Api;
@@ -8,6 +9,7 @@ namespace NotifyMe.IntegrationTests.Api;
 /// probe, not an admin action) and healthy when the real Postgres dependency is up (see
 /// ai/plan/phase-10-cross-cutting-concerns.md).
 /// </summary>
+[Collection(PostgresCollection.Name)]
 public class HealthEndpointTests : IClassFixture<AdminApiWebApplicationFactory>
 {
     private readonly AdminApiWebApplicationFactory _factory;

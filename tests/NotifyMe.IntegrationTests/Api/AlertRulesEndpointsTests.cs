@@ -5,6 +5,7 @@ using NotifyMe.Api.Authentication;
 using NotifyMe.Application.AlertRules;
 using NotifyMe.Domain.Common;
 using NotifyMe.Domain.Events;
+using NotifyMe.IntegrationTests;
 using Xunit;
 
 namespace NotifyMe.IntegrationTests.Api;
@@ -13,6 +14,7 @@ namespace NotifyMe.IntegrationTests.Api;
 /// CRUD round trip for the <c>/api/admin/alert-rules</c> endpoints against the real Api host and
 /// a real Postgres instance (see docs/api/admin-api.md).
 /// </summary>
+[Collection(PostgresCollection.Name)]
 public class AlertRulesEndpointsTests : IClassFixture<AdminApiWebApplicationFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };

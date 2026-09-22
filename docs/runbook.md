@@ -32,6 +32,13 @@ fetch through dispatch can be traced in the console output.
 ## Running tests
 
 - `dotnet test` at the repo root runs unit tests.
-- Integration tests require Docker running locally (`docker compose up -d postgres mailhog`) for
-  the Postgres-backed and MailHog-backed tests; WireMock.Net-backed tests spin up their own
-  in-process server.
+- Integration tests require a reachable Docker daemon. Postgres-backed tests
+  (`AdminApiWebApplicationFactory`-based Api tests and `AlertRuleRepositoryTests`) spin up their
+  own ephemeral `postgres:16-alpine` container via Testcontainers - no manual setup needed beyond
+  Docker being available. MailHog-backed email tests still require
+  `docker compose up -d mailhog` (a real SMTP+web-UI pair isn't worth spinning up per test run).
+  WireMock.Net-backed Slack tests spin up their own in-process server, no Docker needed at all.
+- `dotnet test --collect:"XPlat Code Coverage"` produces per-project Cobertura XML under a
+  results directory; merge/view with `reportgenerator` (`dotnet tool install -g
+  dotnet-reportgenerator-globaltool`, then `reportgenerator -reports:<dir>\**\coverage.cobertura.xml
+  -targetdir:coverage-report -reporttypes:Html`).
