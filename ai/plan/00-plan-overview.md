@@ -21,7 +21,7 @@ it is now scoped as Phases 13-15 (see ADR-0009).
 - [x] [Phase 09 - Background workers](phase-09-background-workers.md)
 - [x] [Phase 10 - Cross-cutting concerns](phase-10-cross-cutting-concerns.md)
 - [x] [Phase 11 - Testing hardening](phase-11-testing-hardening.md)
-- [ ] [Phase 12 - CI & repo polish](phase-12-ci-and-repo-polish.md)
+- [x] [Phase 12 - CI & repo polish](phase-12-ci-and-repo-polish.md)
 - [x] [Phase 13 - Frontend foundation & API integration](phase-13-frontend-foundation.md)
 - [x] [Phase 14 - Frontend admin screens](phase-14-frontend-admin-screens.md)
 - [x] [Phase 15 - Frontend testing, CI, and docs](phase-15-frontend-testing-and-docs.md)
@@ -60,7 +60,8 @@ covered - 110 tests passing total. Phase 12 adds `.github/workflows/ci.yml` (res
 on push and pull request to `main`, with a MailHog service container for the email check), a
 rewritten root `README.md` with concrete quick-start instructions replacing the stale
 scaffolding-only description, and a completeness review of `ai/decisions/adr/` (no gaps found).
-Only the final tag/milestone commit for Phase 12 remains, pending explicit user go-ahead.
+With the user's explicit go-ahead, an annotated `v1.0.0` git tag was created locally on `main`
+marking the backend + frontend as feature-complete for this exercise (not pushed).
 
 The frontend (deferred since the plan's start until the Admin API contract was stable) is now
 planned: ADR-0009 decides the stack (Vite + React + TypeScript, OpenAPI-generated types,

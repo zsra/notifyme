@@ -11,7 +11,7 @@ Phase 11 (test suite should be in its final shape).
 - [x] `.github/workflows/ci.yml`: restore, build, test on push and pull request.
 - [x] Finalize root `README.md` with concrete run instructions once code exists.
 - [x] Final pass over `ai/decisions/adr/` for completeness.
-- [ ] Tag/milestone commit marking the backend as feature-complete for this exercise.
+- [x] Tag/milestone commit marking the backend as feature-complete for this exercise.
 
 ## Verification
 - GitHub Actions run is green on the default branch.
@@ -53,9 +53,13 @@ CI workflow itself, since it just executes the testing strategy ADR-0007 already
 than making a new architectural choice.
 
 ### Tag/milestone commit
-Left unchecked deliberately: committing/tagging is a git action the agent does not take without
-explicit user instruction (see `AGENTS.md`/repo convention). Ready whenever the user confirms.
+Left unchecked deliberately until the user explicitly confirmed it (committing/tagging is a git
+action the agent does not take without explicit user instruction, see `AGENTS.md`/repo
+convention). With that go-ahead, created an annotated tag `v1.0.0` on the current `main` HEAD
+summarizing the feature-complete backend (Phases 00-12) and frontend (Phases 13-15). The tag was
+created locally only; it was not pushed, since the user's go-ahead covered the local tag, not a
+push (a separate, more shared-system-affecting action).
 
 ## Status
-Mostly done (2026-09-22). All steps except the final tag/milestone commit are complete;
-`dotnet build`/`dotnet test` pass (110/110). Awaiting explicit user go-ahead to commit/tag.
+Done (2026-09-22). All steps complete; `dotnet build`/`dotnet test` pass (110/110), and the repo
+is tagged `v1.0.0` locally marking the feature-complete milestone (backend + frontend).
