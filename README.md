@@ -56,5 +56,6 @@ status, and [`ai/decisions/adr/`](ai/decisions/adr/) for the key decisions made 
 
 The original brief is preserved at [`task-04-feature-design-and-build.docx`](task-04-feature-design-and-build.docx).
 
-Frontend is intentionally out of scope for now; the backend (.NET, Clean Architecture) is being
-built first and the frontend will be scoped in a follow-up once the Admin API contract is stable.
+The frontend (a React/TypeScript admin panel, kept deliberately simple and technical rather than
+visual) is now planned but not yet built: see ADR-0009 and Phases 13-15 in
+[`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md).

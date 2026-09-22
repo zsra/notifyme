@@ -22,12 +22,16 @@ API contract (end of Phase 8) is stable.
 - [x] [Phase 10 - Cross-cutting concerns](phase-10-cross-cutting-concerns.md)
 - [x] [Phase 11 - Testing hardening](phase-11-testing-hardening.md)
 - [ ] [Phase 12 - CI & repo polish](phase-12-ci-and-repo-polish.md)
-- [ ] Frontend - deferred, to be planned separately once Phase 08 is stable
+- [ ] [Phase 13 - Frontend foundation & API integration](phase-13-frontend-foundation.md)
+- [ ] [Phase 14 - Frontend admin screens](phase-14-frontend-admin-screens.md)
+- [ ] [Phase 15 - Frontend testing, CI, and docs](phase-15-frontend-testing-and-docs.md)
 
 ## Sequencing notes
 
-Phases 00-05 and 08-12 are sequential. Phases 06 and 07 both depend on Phase 04 (the interfaces
+Phases 00-05 and 08-15 are sequential. Phases 06 and 07 both depend on Phase 04 (the interfaces
 they implement) but not on each other, so they can be worked in either order or in parallel.
+Phases 13-15 (frontend) only depend on Phase 08 (the Admin API contract); they were deferred
+until that contract was stable but are otherwise sequential among themselves.
 
 ## Current status
 
@@ -57,3 +61,10 @@ on push and pull request to `main`, with a MailHog service container for the ema
 rewritten root `README.md` with concrete quick-start instructions replacing the stale
 scaffolding-only description, and a completeness review of `ai/decisions/adr/` (no gaps found).
 Only the final tag/milestone commit for Phase 12 remains, pending explicit user go-ahead.
+
+The frontend (deferred since the plan's start until the Admin API contract was stable) is now
+planned: ADR-0009 decides the stack (Vite + React + TypeScript, OpenAPI-generated types,
+TanStack Query, React Router, deliberately no CSS/UI framework or form library, API key in
+`sessionStorage`), and Phases 13-15 break the work into foundation/API integration, the actual
+CRUD/read screens, and testing/CI/docs, respectively. None of the frontend phases are
+implemented yet.
