@@ -13,17 +13,46 @@ AI-directed software design and delivery.
   the runbook for running the system locally.
 - `src/` - the .NET solution (`NotifyMe.slnx`): `NotifyMe.Domain`, `NotifyMe.Application`,
   `NotifyMe.Infrastructure`, `NotifyMe.Api`, wired per Clean Architecture (see
-  [`docs/architecture/overview.md`](docs/architecture/overview.md)). Scaffolded and building;
-  no business logic yet.
+  [`docs/architecture/overview.md`](docs/architecture/overview.md)).
 - `tests/` - automated tests: `NotifyMe.Domain.Tests`, `NotifyMe.Application.Tests`,
-  `NotifyMe.IntegrationTests` (xUnit). Scaffolded; no tests written yet.
+  `NotifyMe.Infrastructure.Tests`, `NotifyMe.IntegrationTests` (xUnit).
+
+## Quick start
+
+Prerequisites: [.NET 10 SDK](https://dotnet.microsoft.com/download), Docker (for PostgreSQL,
+MailHog, and Testcontainers-backed integration tests).
+
+```
+docker compose up -d
+dotnet user-secrets set "Admin:ApiKey" "<your local key>" --project src/NotifyMe.Api
+dotnet ef database update --project src/NotifyMe.Infrastructure --startup-project src/NotifyMe.Api
+dotnet run --project src/NotifyMe.Api
+```
+
+Then open the OpenAPI document at `/openapi/v1.json` (development only) to explore the Admin
+API, or `GET /health` for a liveness/Postgres-connectivity check. See
+[`docs/runbook.md`](docs/runbook.md) for the full walkthrough, including how to configure a real
+Slack webhook channel and inspect delivered emails via MailHog's web UI.
+
+Run the test suite with `dotnet test` from the repo root; see
+[`docs/runbook.md`](docs/runbook.md#running-tests) for what each test project requires (Docker
+for Testcontainers-backed Postgres tests, `docker compose up -d mailhog` for the MailHog email
+check, nothing extra for WireMock-backed Slack tests).
 
 ## Status
 
-Solution and project scaffolding is in place (`dotnet build` succeeds across all 7 projects);
-no domain/application logic has been implemented yet. See
-[`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md) for the phased plan and current
-progress, and [`ai/decisions/adr/`](ai/decisions/adr/) for the key decisions made so far.
+The backend is feature-complete for this exercise: Domain and Application layers implement
+alert matching and notification dispatch; Infrastructure provides real EF Core/PostgreSQL
+persistence, a deterministic simulated event source, and real Slack (webhook) and Email (SMTP)
+notification channels; the Admin API (Phase 08) exposes CRUD for alert rules/channels/
+subscriptions, notification history, and a manual trigger endpoint behind API-key auth; a
+background worker (Phase 09) automates event ingestion end-to-end; Serilog logging, a `/health`
+endpoint, and hardened error handling round out the cross-cutting concerns (Phase 10); and the
+test suite (Phase 11) runs against ephemeral Testcontainers-backed Postgres, WireMock-backed
+Slack, and MailHog-backed Email, with 110+ tests passing and CI (`.github/workflows/ci.yml`)
+running restore/build/test on every push and pull request. See
+[`ai/plan/00-plan-overview.md`](ai/plan/00-plan-overview.md) for the phased plan and detailed
+status, and [`ai/decisions/adr/`](ai/decisions/adr/) for the key decisions made along the way.
 
 The original brief is preserved at [`task-04-feature-design-and-build.docx`](task-04-feature-design-and-build.docx).
 

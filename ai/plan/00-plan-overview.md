@@ -52,4 +52,8 @@ dependency), the WireMock-based Slack suite gained webhook-failure and webhook-u
 cases, and a coverage review closed real gaps (Slack's network-exception handling,
 `NotifyMeExceptionHandler`'s catch-all 500 path) while confirming the matching logic
 (`AlertMatcher`) and dispatch retry path (`DispatchNotificationUseCase`) are already fully
-covered - 110 tests passing total. Phase 12 (CI & repo polish) is next.
+covered - 110 tests passing total. Phase 12 adds `.github/workflows/ci.yml` (restore/build/test
+on push and pull request to `main`, with a MailHog service container for the email check), a
+rewritten root `README.md` with concrete quick-start instructions replacing the stale
+scaffolding-only description, and a completeness review of `ai/decisions/adr/` (no gaps found).
+Only the final tag/milestone commit for Phase 12 remains, pending explicit user go-ahead.
