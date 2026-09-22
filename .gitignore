@@ -1,0 +1,32 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+## Rider / VS Code
+.idea/
+*.DotSettings.user
+
+## Test results / coverage
+TestResults/
+coverage/
+*.trx
+
+## Docker
+docker-compose.override.yml
+
+## Secrets (defense in depth; user-secrets store lives outside the repo already)
+**/secrets.json
+**/*.local.json
+appsettings.*.local.json
+
+## Frontend (reserved for later, not created yet)
+node_modules/
+dist/
+build/
+
+## OS
+.DS_Store
+Thumbs.db
