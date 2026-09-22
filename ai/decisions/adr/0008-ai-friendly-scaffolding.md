@@ -37,3 +37,8 @@ records as the source of prompt history, since a manually-maintained log was on 
 an ever-growing, easily-stale file that duplicated information already captured elsewhere. If
 the project's evaluator specifically needs an exported prompt history artifact, generate it from
 the tool's session records at submission time rather than maintaining it continuously by hand.
+
+## Amendment (2026-09-22, later the same day)
+Exported that artifact: [`ai/prompts/prompt-history.md`](../../prompts/prompt-history.md),
+generated from this session's own transcript rather than hand-maintained, exactly as this ADR
+anticipated above.

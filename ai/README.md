@@ -14,9 +14,11 @@ system is and how it's shaped*, it goes in `docs/`.
 - [`decisions/adr/`](decisions/adr/) - Architecture/process Decision Records. One file per
   decision, using `template.md`. Includes both up-front decisions and any made mid-build.
 
-Prompt history for this project is not kept as a hand-maintained file in this repo; it's
-covered by git commit history plus the coding tool's own session/conversation records, per
-ADR-0008. See that ADR if you're wondering where prompt history lives.
+Prompt history for this project is not kept as a hand-maintained file that's updated turn by
+turn; it's covered by git commit history plus the coding tool's own session/conversation records,
+per ADR-0008. An exported, cleaned-up copy generated from those session records at submission
+time lives at [`prompts/prompt-history.md`](prompts/prompt-history.md). See ADR-0008 if you're
+wondering why it isn't hand-maintained.
 
 ## Ground rules
 
